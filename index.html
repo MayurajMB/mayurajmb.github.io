@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART on FHIR - Deep Dive</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <div class="logo">SMART Deep Dive</div>
+        <button id="menu-toggle" aria-label="Toggle menu">
+            <i data-feather="menu"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>SMART on FHIR</h2>
+            <p>Deep Dive</p>
+        </div>
+
+        <div class="sidebar-category">OVERVIEW</div>
+        <ul class="nav-links">
+            <li><a href="#section-1" class="active"><i data-feather="book-open"></i> Introduction</a></li>
+            <li><a href="#section-2"><i data-feather="monitor"></i> What is SMART?</a></li>
+            <li><a href="#section-3"><i data-feather="layers"></i> Core Standards</a></li>
+        </ul>
+
+        <div class="sidebar-category">SECURITY & AUTH</div>
+        <ul class="nav-links">
+            <li><a href="#section-4"><i data-feather="settings"></i> Config & Discovery</a></li>
+            <li><a href="#section-8"><i data-feather="shield"></i> SMART Scopes</a></li>
+        </ul>
+
+        <div class="sidebar-category">SMART LAUNCH</div>
+        <ul class="nav-links">
+            <li><a href="#section-5"><i data-feather="smartphone"></i> Standalone Launch</a></li>
+            <li><a href="#section-6"><i data-feather="layout"></i> Embed Launch</a></li>
+            <li><a href="#section-7"><i data-feather="server"></i> Backend Launch</a></li>
+        </ul>
+
+        <div class="sidebar-category">DEVELOPMENT</div>
+        <ul class="nav-links">
+            <li><a href="#section-9"><i data-feather="code"></i> Building Clients</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="content">
+        <div class="content-wrapper">
+
+            <!-- SECTION 1: INTRODUCTION -->
+            <section id="section-1" class="page-section active">
+                <h1>📖 1. Introduction & Context</h1>
+                <p class="lead">From Basic FHIR APIs to Secure, Interoperable Health Apps — Why SMART on FHIR Exists and
+                    Why It Matters for Every Healthcare Developer.</p>
+
+                <h3>1. The Historical Problem: A Decade of "Custom Integrations"</h3>
+                <p>Before healthcare data standardization, every hospital had its own proprietary way of exposing
+                    patient data. If you wanted to build a third-party clinical decision support app, you would
+                    negotiate a unique data feed with Epic, then a completely different one with Cerner, then yet
+                    another with Allscripts. You were not building software — you were building an integration business
+                    with each hospital as its own full-time project.</p>
+
+                <table class="ref-table" style="margin-bottom: 32px;">
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Standard / Event</th>
+                            <th>What it Solved</th>
+                            <th>What it Left Unsolved</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>1987</strong></td>
+                            <td>HL7 v2</td>
+                            <td>Basic lab result messages between hospital departments.</td>
+                            <td>Verbose, binary, difficult to parse. No REST API.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2011</strong></td>
+                            <td>HL7 v3 / CDA</td>
+                            <td>Structured XML clinical documents (C-CDA).</td>
+                            <td>Extremely complex XML schemas. Still no REST API.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2014</strong></td>
+                            <td>FHIR R2 Released</td>
+                            <td>Modern JSON REST API + standardized resource types (Patient, Observation, etc.).</td>
+                            <td>No defined security/authentication model. Left to implementers.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2016</strong></td>
+                            <td>SMART on FHIR v1</td>
+                            <td>Defined OAuth 2.0 + OIDC as the universal security layer on top of FHIR.</td>
+                            <td>Scope granularity was limited. v1 scopes like <code>patient/*.read</code> were coarse.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>2020</strong></td>
+                            <td>21st Century Cures Act (US)</td>
+                            <td>Mandated SMART on FHIR compliance for all certified US EHRs. Made it law.</td>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2022</strong></td>
+                            <td>SMART on FHIR v2</td>
+                            <td>Granular CRUD scopes (<code>patient/Observation.rs</code>), asymmetric JWT auth,
+                                stronger security.</td>
+                            <td>—</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>2. The Security Gap in Base FHIR</h3>
+                <p>FHIR explicitly specifies that it does not define security protocols. It is built expecting a
+                    security layer to be applied on top of it. Without SMART, any organization implementing FHIR would
+                    have to answer these questions independently:</p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <i data-feather="database"></i>
+                        <h3>Base FHIR Provides</h3>
+                        <ul class="benefits-list" style="text-align: left; padding: 0;">
+                            <li><i data-feather="check" style="color: #22c55e;"></i> Standard JSON resource schemas
+                                (Patient, Obs).</li>
+                            <li><i data-feather="check" style="color: #22c55e;"></i> RESTful <code>GET</code>,
+                                <code>POST</code>, <code>PATCH</code> endpoints.
+                            </li>
+                            <li><i data-feather="check" style="color: #22c55e;"></i> Search parameters and query syntax.
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="feature-card"
+                        style="background: rgba(239, 68, 68, 0.04); border-color: rgba(239, 68, 68, 0.25);">
+                        <i data-feather="alert-triangle" style="color: #ef4444;"></i>
+                        <h3 style="color: #b91c1c;">Base FHIR Does NOT Provide</h3>
+                        <ul class="benefits-list" style="text-align: left; padding: 0;">
+                            <li><i data-feather="x" style="color: #ef4444;"></i> Authentication ("Who are you?" —
+                                Identity).</li>
+                            <li><i data-feather="x" style="color: #ef4444;"></i> Authorization ("What can you see?" —
+                                Permissions).</li>
+                            <li><i data-feather="x" style="color: #ef4444;"></i> Context (Which patient/visit is
+                                active?).</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card" style="background: rgba(56, 184, 179, 0.04);">
+                        <i data-feather="check-circle" style="color: #38b8b3;"></i>
+                        <h3>SMART on FHIR Adds</h3>
+                        <ul class="benefits-list" style="text-align: left; padding: 0;">
+                            <li><i data-feather="check" style="color: #38b8b3;"></i> OpenID Connect for Identity proof.
+                            </li>
+                            <li><i data-feather="check" style="color: #38b8b3;"></i> OAuth 2.0 scopes for granular
+                                Permissions.</li>
+                            <li><i data-feather="check" style="color: #38b8b3;"></i> Launch parameters for active EHR
+                                Context.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>3. The Regulatory Mandate</h3>
+                <div class="callout tip">
+                    <i data-feather="info" class="callout-icon"></i>
+                    <div class="callout-content">
+                        <strong>21st Century Cures Act (ONC Final Rule, 2020):</strong> This US federal law mandated
+                        that all ONC-certified EHR systems (i.e., all major hospital EHRs) must expose SMART on FHIR R4
+                        APIs by 2022. Non-compliance results in "information blocking" violations. This is why Epic,
+                        Cerner, and Allscripts <em>must</em> implement what we're covering today.
+                    </div>
+                </div>
+
+                <div class="page-navigation" style="margin-top: 48px;">
+                    <div></div>
+                    <a href="#section-2" class="nav-btn next">Next: What is SMART? <i
+                            data-feather="arrow-right"></i></a>
+                </div>
+            </section>
+
+            <!-- SECTION 2: WHAT IS SMART? -->
+            <section id="section-2" class="page-section">
+                <h1>🧠 2. What is SMART on FHIR?</h1>
+                <p class="lead"><strong>S</strong>ubstitutable <strong>M</strong>edical <strong>A</strong>pplications,
+                    <strong>R</strong>eusable <strong>T</strong>echnologies — coined by Harvard's Dr. Ken Mandl in 2010.
+                </p>
+
+                <h3>1. The USB Analogy: Type-C & Display over Type-C</h3>
+                <p>The clearest way to understand the relationship between FHIR and SMART on FHIR is through the USB
+                    Type-C standard.</p>
+
+                <div class="feature-grid">
+                    <div class="feature-card" style="text-align: left;">
+                        <i data-feather="zap"></i>
+                        <h3>FHIR = USB Type-C</h3>
+                        <p>USB Type-C defines the <strong>physical connector standard</strong> — the shape of the port,
+                            the pin layout, and the basic power/data protocol. Every device that has a Type-C port can
+                            at minimum charge and transfer data.</p>
+                        <p>Similarly, <strong>FHIR defines the data connector standard</strong> — the shape of clinical
+                            data (Patient, Observation), the REST API contract, and the query language. Any EHR with a
+                            FHIR endpoint exposes data in a predictable way.</p>
+                        <ul class="benefits-list" style="padding: 0; margin-top: 8px;">
+                            <li><i data-feather="check" style="color: #38b8b3;"></i> Universal physical connector shape.
+                            </li>
+                            <li><i data-feather="check" style="color: #38b8b3;"></i> Basic power + data protocol
+                                included.</li>
+                            <li><i data-feather="x" style="color: #ef4444;"></i> Does NOT define what flows over the
+                                wire (video? audio? identity?).</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card" style="text-align: left;">
+                        <i data-feather="monitor"></i>
+                        <h3>SMART on FHIR = Display over Type-C</h3>
+                        <p><strong>DisplayPort Alt Mode over Type-C</strong> is an additional protocol that rides on top
+                            of the same USB-C connector — but now the port can carry a full 4K video signal. The
+                            connector didn't change. The cable didn't change. A capability layer was added on top.</p>
+                        <p>Similarly, <strong>SMART on FHIR rides on top of FHIR</strong> — it adds the security and
+                            identity capability layer (OAuth 2.0, OIDC, Scopes) on top of the same FHIR endpoints,
+                            without changing the data model at all.</p>
+                        <ul class="benefits-list" style="padding: 0; margin-top: 8px;">
+                            <li><i data-feather="check" style="color: #7234ae;"></i> Same FHIR port — no change to data
+                                model.</li>
+                            <li><i data-feather="check" style="color: #7234ae;"></i> Adds authentication + authorization
+                                on top.</li>
+                            <li><i data-feather="check" style="color: #7234ae;"></i> Unlocks rich, secure data flows
+                                (like Display unlocks 4K).</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="ref-divider"></div>
+
+                <h3>2. The Web Analogy: HTTP & HTTPS</h3>
+                <p>For developers, the most familiar analogy is the evolution from HTTP to HTTPS on the web.</p>
+                <div class="feature-grid">
+                    <div class="feature-card" style="text-align: left;">
+                        <i data-feather="file-text"></i>
+                        <h3>FHIR = HTTP</h3>
+                        <p>HTTP defines how web browsers and servers communicate — the request/response format, status
+                            codes, headers, and URL structure. It is purely about <strong>content and
+                                transport</strong>, not about security.</p>
+                        <p>Similarly, <strong>FHIR defines the clinical data request/response format</strong> —
+                            <code>GET /Patient/{id}</code>, JSON resources, search parameters. It's the data protocol,
+                            not the security layer.
+                        </p>
+                        <ul class="benefits-list" style="padding: 0; margin-top: 8px;">
+                            <li><i data-feather="check" style="color: #38b8b3;"></i> Defines the data format & endpoint
+                                structure.</li>
+                            <li><i data-feather="check" style="color: #38b8b3;"></i> Works out of the box — just make a
+                                REST call.</li>
+                            <li><i data-feather="x" style="color: #ef4444;"></i> No encryption, no identity, no access
+                                control.</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card" style="text-align: left;">
+                        <i data-feather="lock"></i>
+                        <h3>SMART on FHIR = HTTPS</h3>
+                        <p>HTTPS is HTTP with <strong>TLS encryption layered on top</strong>. The web page content
+                            (HTML) didn't change. The URL structure didn't change. But now every request is encrypted,
+                            authenticated, and tamper-proof.</p>
+                        <p>Similarly, <strong>SMART on FHIR is FHIR with OAuth 2.0 + OIDC layered on top</strong>. The
+                            FHIR resources didn't change. The endpoints didn't change. But now every request is
+                            authorized, the user is authenticated, and data is protected.</p>
+                        <ul class="benefits-list" style="padding: 0; margin-top: 8px;">
+                            <li><i data-feather="check" style="color: #7234ae;"></i> Same FHIR endpoints — zero data
+                                model changes.</li>
+                            <li><i data-feather="check" style="color: #7234ae;"></i> Adds encryption + identity proof on
+                                top.</li>
+                            <li><i data-feather="check" style="color: #7234ae;"></i> Without SMART, FHIR is like HTTP —
+                                open to abuse.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="ref-divider"></div>
+
+                <h3>3. The EHR Vendor Ecosystem</h3>
+                <p>Each major EHR vendor has their own branded portal and implementation, but they all follow the same
+                    SMART on FHIR specification under the hood. This is the key insight.</p>
+
+                <table class="ref-table">
+                    <thead>
+                        <tr>
+                            <th>EHR Vendor</th>
+                            <th>Developer Portal / App Marketplace</th>
+                            <th>Auth Server Name</th>
+                            <th>Key Sandbox URL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Epic Systems</strong></td>
+                            <td>Epic App Orchard</td>
+                            <td>Epic MyChart OAuth</td>
+                            <td><code>open.epic.com</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Oracle Cerner</strong></td>
+                            <td>Cerner Code Gallery</td>
+                            <td>Cerner Ignite Auth</td>
+                            <td><code>fhir-myrecord.cerner.com</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>eClinicalWorks (ECW)</strong></td>
+                            <td>ECW Developer Network</td>
+                            <td>ECW FHIR Auth Server</td>
+                            <td><code>fhir.ecwcloud.com</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Veradigm (Allscripts)</strong></td>
+                            <td>Veradigm Developer Program</td>
+                            <td>Veradigm OAuth</td>
+                            <td><code>open.allscripts.com</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Meditech</strong></td>
+                            <td>Meditech App Credentials Portal</td>
+                            <td>Meditech OAuth 2.0</td>
+                            <td><code>live.meditech.com</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="ref-divider"></div>
+
+                <h3>3. The Trinity of Standards — Combined</h3>
+                <p>A core strength of SMART is that it doesn't invent novel security. It assembles three proven, massive
+                    internet standards into a cohesive profile. Each layer has a precisely defined role and hands off to
+                    the next.</p>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3 style="color: #7234ae;"><i data-feather="file-text"></i> FHIR (HL7 R4)</h3>
+                        <p><em>The Language of Clinical Data</em></p>
+                        <ul class="benefits-list" style="text-align: left; padding: 0;">
+                            <li><i data-feather="file-text"></i> Defines JSON schemas (Patient, Obs).</li>
+                            <li><i data-feather="search"></i> Provides RESTful search parameters.</li>
+                            <li><i data-feather="link"></i> Defines the server URLs your app calls.</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h3 style="color: #38b8b3;"><i data-feather="key"></i> OAuth 2.0 (RFC 6749)</h3>
+                        <p><em>The Authorization Layer</em></p>
+                        <ul class="benefits-list" style="text-align: left; padding: 0;">
+                            <li><i data-feather="unlock"></i> Handles asking user for explicit consent.</li>
+                            <li><i data-feather="lock"></i> Safely issues temporary Access Tokens.</li>
+                            <li><i data-feather="sliders"></i> Manages granular scope-based permissions.</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h3 style="color: #ef4444;"><i data-feather="user-check"></i> OpenID Connect (OIDC)</h3>
+                        <p><em>The Identity Layer</em></p>
+                        <ul class="benefits-list" style="text-align: left; padding: 0;">
+                            <li><i data-feather="user"></i> Proves who the logged-in user is.</li>
+                            <li><i data-feather="file-text"></i> Issues ID Tokens (always a JWT).</li>
+                            <li><i data-feather="link"></i> Provides the <code>fhirUser</code> claim pointing to their
+                                FHIR profile.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="page-navigation" style="margin-top: 48px;">
+                    <a href="#section-1" class="nav-btn prev"><i data-feather="arrow-left"></i> Prev: Intro</a>
+                    <a href="#section-3" class="nav-btn next">Next: Core Standards <i
+                            data-feather="arrow-right"></i></a>
+                </div>
+            </section>
+
+            <!-- SECTION 3: CORE STANDARDS -->
+            <section id="section-3" class="page-section">
+                <h1>⚙️ 3. Core Standards Deep Dive</h1>
+                <p class="lead">Understanding the mechanics of OAuth 2.0, OpenID Connect (OIDC), and JSON Web Tokens
+                    (JWTs) in the context of healthcare.</p>
+
+                <h3>1. The Foundation: OAuth 2.0 Actors</h3>
+                <p>OAuth 2.0 is an authorization framework that enables applications to obtain limited access to user
+                    accounts on an HTTP service. To understand how a SMART app gets access to an EHR, you must first
+                    understand the four key participants in any OAuth transaction.</p>
+
+                <div class="feature-grid" style="margin-bottom: 32px;">
+                    <div class="feature-card">
+                        <i data-feather="user"></i>
+                        <h3>Resource Owner</h3>
+                        <p><strong>Who:</strong> The Patient or the Clinician.</p>
+                        <p><strong>Role:</strong> They are the entity capable of granting access to a protected
+                            resource. When a patient logs into a portal to approve an app, they are acting as the
+                            Resource Owner.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i data-feather="smartphone"></i>
+                        <h3>Client</h3>
+                        <p><strong>Who:</strong> Your SMART Application.</p>
+                        <p><strong>Role:</strong> The application making protected resource requests on behalf of the
+                            resource owner and with its authorization. Can be a mobile app, web SPA, or a backend
+                            service.</p>
+                    </div>
+                </div>
+                <div class="feature-grid" style="margin-top: -16px; margin-bottom: 32px;">
+                    <div class="feature-card">
+                        <i data-feather="shield"></i>
+                        <h3>Authorization Server</h3>
+                        <p><strong>Who:</strong> The EHR's OAuth/Login Portal (e.g., Epic MyChart, Cerner Ignite).</p>
+                        <p><strong>Role:</strong> The server issuing access tokens to the client after successfully
+                            authenticating the resource owner and obtaining authorization.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i data-feather="database"></i>
+                        <h3>Resource Server</h3>
+                        <p><strong>Who:</strong> The EHR's FHIR API.</p>
+                        <p><strong>Role:</strong> The server hosting the protected resources (clinical data), capable of
+                            accepting and responding to protected resource requests using access tokens.</p>
+                    </div>
+                </div>
+
+                <div class="ref-divider"></div>
+
+                <h3>2. The Identity Layer: OpenID Connect (OIDC)</h3>
+                <p>OAuth 2.0 was designed <em>exclusively</em> for authorization (granting access to APIs), not
+                    authentication (proving exactly who the user is). Because platforms needed to know user identity,
+                    they started writing custom, non-standard hacks on top of OAuth. This led to a fragmented ecosystem.
+                </p>
+                <p><strong>OpenID Connect (OIDC)</strong> is a standardized identity layer built directly on top of
+                    OAuth 2.0. By adding OIDC to the SMART on FHIR flow, apps can securely authenticate the user and
+                    authorize data access in a single unified step, receiving two distinct types of tokens.</p>
+
+                <table class="ref-table">
+                    <thead>
+                        <tr>
+                            <th>Token Type</th>
+                            <th>Protocol</th>
+                            <th>Primary Purpose</th>
+                            <th>Analogy</th>
+                            <th>Format</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Access Token</strong></td>
+                            <td>OAuth 2.0</td>
+                            <td>Used in the <code>Authorization: Bearer</code> header to fetch FHIR data from the
+                                Resource Server. Instructs the API <em>what</em> the app is allowed to do.</td>
+                            <td>A <strong>Valet Key</strong>. It lets the valet drive your car, but doesn't tell them
+                                who you are or let them open the glovebox.</td>
+                            <td>Often an Opaque String (meaningless to the client app).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ID Token</strong></td>
+                            <td>OpenID Connect</td>
+                            <td>Provides cryptographic proof to the Client application of exactly who just logged in,
+                                when they logged in, and how.</td>
+                            <td>A <strong>Driver's License</strong>. It unequivocally proves your identity to the
+                                bouncer at the door.</td>
+                            <td>Always a JSON Web Token (JWT).</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="ref-divider"></div>
+
+                <h3>3. Unpacking the ID Token: JSON Web Tokens (JWT)</h3>
+                <p>OIDC strictly specifies that the ID Token must be formatted as a JSON Web Token (JWT). A JWT is a
+                    compact, URL-safe means of representing claims to be transferred between two parties. It consists of
+                    three base64-url encoded parts separated by periods (<code>.</code>).</p>
+
+                <div class="code-block"
+                    style="background-color: #f1f5f9; border: 1px solid #cbd5e1; word-wrap: break-word; color: #334155; margin-top: 24px; margin-bottom: 24px;">
+                    <span style="color: #ef4444; font-weight: 600;">Header</span>.<span
+                        style="color: #7234ae; font-weight: 600;">Payload</span>.<span
+                        style="color: #3b82f6; font-weight: 600;">Signature</span><br><br>
+                    <span style="color: #ef4444;">eyJhbGciOiJSUzI1NiIsImtpZCI6IjFhMmIzYzRkIn0</span>.<span
+                        style="color: #7234ae;">eyJpc3MiOiJodHRwczovL2VociIsImV4cCI6MTY5OX0</span>.<span
+                        style="color: #3b82f6;">SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</span>
+                </div>
+
+                <div class="feature-grid">
+                    <div class="feature-card" style="text-align: left;">
+                        <h3 style="color: #ef4444;">1. The Header (JOSE Header)</h3>
+                        <p>Tells the receiving server <em>how</em> to verify this token — which algorithm was used to
+                            sign it, and which specific public key to look up from the JWKS endpoint.</p>
+                        <pre
+                            style="margin-top: 12px; font-size: 0.78em; padding: 12px; background-color: #fee2e2; border: 1px solid #fca5a5; color: #7f1d1d; border-radius: 8px; white-space: pre-wrap; font-family: monospace; line-height: 1.5; text-align: left;">{
+  "x5t#S256": "A3kPz-XKstu9w7B5iF8vxn58WiPqZGtu8EJH4VboZit",
+  "kid":      "jwt",
+  "alg":      "RS256"
+}</pre>
+                        <table style="width:100%; font-size: 0.78em; margin-top:10px; border-collapse: collapse;">
+                            <tr style="border-bottom: 1px solid #fca5a5;">
+                                <td style="padding:4px 6px; font-weight:600; color:#b91c1c; width:35%;">x5t#S256</td>
+                                <td style="padding:4px 6px; color:#7f1d1d;">SHA-256 thumbprint of the signing
+                                    certificate. Used to locate the exact key.</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #fca5a5;">
+                                <td style="padding:4px 6px; font-weight:600; color:#b91c1c;">kid</td>
+                                <td style="padding:4px 6px; color:#7f1d1d;">Key ID. Points to the matching public key in
+                                    the EHR's JWKS endpoint.</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:4px 6px; font-weight:600; color:#b91c1c;">alg</td>
+                                <td style="padding:4px 6px; color:#7f1d1d;">Signing algorithm. RS256 = RSA with SHA-256
+                                    (asymmetric). Never HS256 in production SMART.</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="feature-card" style="text-align: left;">
+                        <h3 style="color: #7234ae;">2. The Payload (Claims)</h3>
+                        <p>Contains all identity and authorization information issued by ECW after a successful SMART
+                            EHR launch. This is the decoded payload of a real <code>id_token</code>.</p>
+                        <pre
+                            style="margin-top: 12px; font-size: 0.72em; padding: 12px; background-color: #f3e8ff; border: 1px solid #d8b4fe; color: #581c87; border-radius: 8px; white-space: pre-wrap; font-family: monospace; line-height: 1.5; text-align: left;">{
+  "sub":         "c5b11811-45b8-xxxx-xxxx-00505684ce1b_68976711-xxxx",
+  "iss":         "https://staging-fhir.ecwcloud.com/fhir/r4/FFBJCD",
+  "aud":         ["jlIyWPTcKz175xxxxxxxxxxxxxxxxx", "https://staging-fhir.ecwcloud.com/fhir/r4/FFBJCD"],
+  "fhirUser":    "https://staging-fhir.ecwcloud.com/fhir/r4/FFBJCD/Practitioner/xxxx",
+  "clientName":  "MAIA",
+  "workflow":    "launch",
+  "vendorId":    "2961",
+  "scope":       ["patient/Patient.read", "patient/Condition.read", "openid", "launch", "..." ],
+  "iat":         1773042664,
+  "exp":         1773042964,
+  "nbf":         1773042664,
+  "jti":         "a0807002-xxxx-4960-xxxx-11a37a19a9c9"
+}</pre>
+                        <table style="width:100%; font-size: 0.73em; margin-top:10px; border-collapse: collapse;">
+                            <tr style="border-bottom: 1px solid #d8b4fe;">
+                                <td style="padding:4px 6px; font-weight:600; color:#7234ae; width:30%;">sub</td>
+                                <td style="padding:4px 6px; color:#581c87;">Unique stable ID of the logged-in user
+                                    (Practitioner). Scoped per EHR + Practice.</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #d8b4fe;">
+                                <td style="padding:4px 6px; font-weight:600; color:#7234ae;">iss</td>
+                                <td style="padding:4px 6px; color:#581c87;">Issuer — the full FHIR base URL of the ECW
+                                    tenant. Must match your discovery URL.</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #d8b4fe;">
+                                <td style="padding:4px 6px; font-weight:600; color:#7234ae;">aud</td>
+                                <td style="padding:4px 6px; color:#581c87;">Audience — your client ID AND the FHIR
+                                    server URL. Both must be validated by your app.</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #d8b4fe;">
+                                <td style="padding:4px 6px; font-weight:600; color:#7234ae;">fhirUser</td>
+                                <td style="padding:4px 6px; color:#581c87;"><strong>SMART-specific.</strong> Absolute
+                                    URL to the Practitioner FHIR resource. Fetch this to get demographics.</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #d8b4fe;">
+                                <td style="padding:4px 6px; font-weight:600; color:#7234ae;">workflow</td>
+                                <td style="padding:4px 6px; color:#581c87;">ECW-specific. Tells you the launch mode —
+                                    <code>launch</code> = EHR Embed Launch.
+                                </td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #d8b4fe;">
+                                <td style="padding:4px 6px; font-weight:600; color:#7234ae;">scope</td>
+                                <td style="padding:4px 6px; color:#581c87;">The exact SMART scopes that were granted.
+                                    Always validate this matches what your app requested.</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:4px 6px; font-weight:600; color:#7234ae;">iat / exp / nbf</td>
+                                <td style="padding:4px 6px; color:#581c87;">Unix timestamps — issued at, expires at, not
+                                    valid before. Token is valid for 5 minutes only.</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="feature-card" style="text-align: left;">
+                        <h3 style="color: #3b82f6;">3. The Signature</h3>
+                        <p>To create the signature part, you take the encoded header, the encoded payload, a secret, the
+                            algorithm specified in the header, and sign that.</p>
+                        <p>For example, if using HMAC SHA256:</p>
+                        <pre
+                            style="margin-top: 12px; font-size: 0.78em; padding: 12px; background-color: #eff6ff; border: 1px solid #93c5fd; color: #1e3a8a; border-radius: 8px; white-space: pre-wrap; font-family: monospace; line-height: 1.5; text-align: left;">HMACSHA256(
+  base64UrlEncode(header) + "." +
+  base64UrlEncode(payload),
+  secret
+)</pre>
+                        <p style="margin-top: 12px;"><strong>This guarantees the token hasn't been altered by a
+                                Man-in-the-Middle.</strong></p>
+                    </div>
+                </div>
+
+                <div class="ref-divider"></div>
+
+                <h3>4. Deep Dive: SMART on FHIR Payload Claims</h3>
+                <p>When an EHR issues an ID token during a SMART launch, the payload contains specific standard OIDC
+                    claims alongside a very critical SMART-specific claim.</p>
+
+                <div class="code-block">
+                    <div class="code-header">Example Decoded SMART ID Token Payload</div>
+                    <code>{
+  "iss": "https://ehr.hospital.org/oauth2",
+  "sub": "Practitioner/12345",
+  "aud": "my-app-client-id",
+  "iat": 1700000000,
+  "exp": 1700003600,
+  "fhirUser": "https://ehr.hospital.org/fhir/Practitioner/12345"
+}</code>
+                </div>
+
+                <div class="feature-grid" style="margin-top: 24px;">
+                    <div class="feature-card">
+                        <h3><i data-feather="shield"></i> Security Claims</h3>
+                        <ul class="benefits-list" style="padding: 0; margin-top: 8px;">
+                            <li style="margin-bottom: 8px; display: block; text-align: left;"><strong>iss
+                                    (Issuer):</strong> The URL of the EHR
+                                Authorization Server that issued the token. Must exactly match the EHR's known endpoint.
+                            </li>
+                            <li style="margin-bottom: 8px; display: block; text-align: left;"><strong>aud
+                                    (Audience):</strong> Your app's
+                                <code>client_id</code>. If this doesn't match your app, the token was stolen from
+                                another app and must be rejected.
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <h3><i data-feather="clock"></i> Lifecycle Claims</h3>
+                        <ul class="benefits-list" style="padding: 0; margin-top: 8px;">
+                            <li style="margin-bottom: 8px; display: block; text-align: left;"><strong>iat (Issued
+                                    At):</strong> Unix timestamp of when the
+                                token was created.</li>
+                            <li style="margin-bottom: 8px; display: block; text-align: left;"><strong>exp
+                                    (Expiration):</strong> Unix timestamp of when
+                                the token dies. Your backend must reject the token if the current time is past this
+                                value.</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <h3><i data-feather="user"></i> Identity Claims</h3>
+                        <ul class="benefits-list" style="padding: 0; margin-top: 8px;">
+                            <li style="margin-bottom: 8px; display: block; text-align: left;"><strong>sub
+                                    (Subject):</strong> A unique, stable identifier
+                                for the user within the EHR (often their internal DB ID).</li>
+                            <li style="margin-bottom: 8px; display: block; text-align: left;"><strong>fhirUser:</strong>
+                                <em>(SMART Specific)</em> The
+                                absolute FHIR URL to read the user's demographic profile! Example:
+                                <code>.../fhir/Patient/789</code>.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="page-navigation" style="margin-top: 48px;">
+                    <a href="#section-2" class="nav-btn prev"><i data-feather="arrow-left"></i> Prev: What is SMART?</a>
+                    <a href="#section-4" class="nav-btn next">Next: Config & Discovery <i
+                            data-feather="arrow-right"></i></a>
+                </div>
+            </section>
+
+            <!-- SECTION 4: CONFIG & DISCOVERY -->
+            <section id="section-4" class="page-section">
+                <h1>🔍 4. SMART Configuration & Discovery</h1>
+                <p class="lead">How applications dynamically discover an EHR's specific security endpoints without
+                    hardcoding URLs.</p>
+
+                <h3>1. The Auto-Discovery Mechanism</h3>
+                <p>Unlike standard APIs where endpoints (like <code>/oauth/token</code>) might be hardcoded in
+                    application logic, SMART on FHIR relies on dynamic discovery. Because every hospital might configure
+                    their EHR slightly differently, SMART requires the EHR to host a JSON configuration file at a
+                    standard location relative to the FHIR Base URL.</p>
+                <div class="callout tip">
+                    <i data-feather="compass" class="callout-icon"></i>
+                    <div class="callout-content">
+                        <strong>The Discovery URL:</strong> <code>[FHIR_BASE]/.well-known/smart-configuration</code>
+                    </div>
+                </div>
+
+                <h3>2. Anatomy of the Discovery JSON</h3>
+                <p>When an app boots up, it fetches this JSON file to learn exactly what capabilities the EHR server
+                    supports, where security endpoints live, and what authentication methods are required.</p>
+
+                <div class="code-block">
+                    <div class="code-header">Example SMART Config Response</div>
+                    <code>{
+  "authorization_endpoint": "https://fhir.epic.com/interconnect-fhir-oauth/oauth2/authorize", 
+  "token_endpoint": "https://fhir.epic.com/interconnect-fhir-oauth/oauth2/token",             
+  "token_endpoint_auth_methods_supported": [         
+    "client_secret_basic",
+    "private_key_jwt"
+  ],
+  "capabilities": [ 
+    "launch-ehr", 
+    "launch-standalone",
+    "client-public",
+    "client-confidential-asymmetric"
+  ],
+  "scopes_supported": ["patient/*.read", "offline_access", "openid", "fhirUser"]
+}</code>
+                </div>
+
+                <div class="feature-grid" style="margin-top: 24px;">
+                    <div class="feature-card">
+                        <h3><i data-feather="link"></i> Endpoints</h3>
+                        <p>Provides the exact URLs your app must redirect users to (<code>authorization_endpoint</code>)
+                            and where it must POST to get tokens (<code>token_endpoint</code>).</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3><i data-feather="check-circle"></i> Auth Methods</h3>
+                        <p>Tells your app how it must authenticate itself. E.g., <code>private_key_jwt</code> means the
+                            EHR requires asymmetric RS384 signatures for backend launches.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3><i data-feather="sliders"></i> Capabilities</h3>
+                        <p>An array of feature flags. If an EHR supports <code>launch-ehr</code>, it means it can embed
+                            your app natively in the clinician workspace.</p>
+                    </div>
+                </div>
+
+                <div class="ref-divider"></div>
+
+                <h3>3. Client Registration Paradigms</h3>
+                <p>Before any app can utilize the discovered endpoints, the EHR must know it exists. The EHR issues a
+                    unique <code>client_id</code> during Registration.</p>
+
+                <table class="ref-table">
+                    <thead>
+                        <tr>
+                            <th>Registration Type</th>
+                            <th>Process</th>
+                            <th>Common Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Static Registration</strong></td>
+                            <td>Developer manually logs into the EHR Vendor's Developer Portal (e.g., Epic App Orchard,
+                                Cerner Code), fills out a form, uploads JWKS URLs, and is issued a static
+                                <code>client_id</code>.
+                            </td>
+                            <td>99% of production healthcare applications.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Dynamic Registration</strong></td>
+                            <td>The app programmatically sends an HTTP POST request to the EHR's registration endpoint
+                                with its metadata and is instantly issued a <code>client_id</code> over the wire.</td>
+                            <td>Automated test suites, sandbox environments. Rarely supported in live production EHRs.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="page-navigation" style="margin-top: 48px;">
+                    <a href="#section-3" class="nav-btn prev"><i data-feather="arrow-left"></i> Prev: Core Standards</a>
+                    <a href="#section-8" class="nav-btn next">Next: SMART Scopes <i data-feather="arrow-right"></i></a>
+                </div>
+            </section>
+
+            <!-- SECTION 5: STANDALONE LAUNCH -->
+            <section id="section-5" class="page-section">
+                <h1>📱 6. Standalone Launch</h1>
+                <p class="lead">For patient-facing mobile apps and Web SPAs launched <em>outside</em> the EHR network.
+                </p>
+
+                <h3>1. The Use Case</h3>
+                <p>A patient downloads a diet tracker on their iPhone. They click "Connect to My Hospital". The app
+                    starts "cold" and doesn't know who the patient is yet. It must guide them to the hospital's login
+                    page securely.</p>
+
+                <h3>2. Sequence Diagram: Auth Code Flow with PKCE</h3>
+                <p>Because the app lives on the open public internet, it uses the Authorization Code flow enhanced with
+                    PKCE.</p>
+                <div
+                    style="background: white; padding: 24px; border-radius: 12px; margin-bottom: 32px; border: 1px solid var(--color-border); overflow-x: auto;">
+                    <div class="mermaid">
+                        sequenceDiagram
+                        participant U as User (Patient)
+                        participant A as Mobile App (Client)
+                        participant Auth as EHR Auth Server
+                        participant FHIR as EHR FHIR API
+
+                        A->>A: Generate PKCE Verifier & Hash it into Challenge
+                        A->>U: Redirect to EHR Login URI
+                        U->>Auth: User sees Epic/Cerner Login Screen
+                        Note over A,Auth: Request includes client_id, scopes, and PKCE Challenge
+                        U->>Auth: User logs in & grants app consent
+                        Auth->>A: Redirect back to App with Auth Code
+                        A->>Auth: POST /token (Sends Code + Original PKCE Verifier)
+                        Auth->>Auth: Verifies Verifier matches initial Challenge
+                        Auth->>A: Returns Access Token & ID Token
+                        A->>FHIR: GET /Patient (Header: Bearer Token)
+                        FHIR->>A: Returns FHIR JSON
+                    </div>
+                </div>
+
+                <h3>3. What is PKCE? (Proof Key for Code Exchange)</h3>
+                <p>Because an iPhone app or a Single Page Application (SPA) cannot safely embed a hardcoded
+                    <code>client_secret</code> (since anyone could inspect the code and steal it), they must use PKCE to
+                    dynamically prove they are the legitimate app.
+                </p>
+
+                <div class="feature-grid" style="grid-template-columns: 1fr; gap: 16px; margin-top: 16px;">
+                    <div class="feature-card" style="text-align: left;">
+                        <h3 style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;"><i
+                                data-feather="lock"></i> 1. The Promise (Challenge)</h3>
+                        <p style="margin: 0;">Before redirecting the user, the app creates a highly random secret
+                            (Verifier), hashes it (Challenge), and sends the Challenge to the EHR. It's safe to send
+                            over the URL because mathematicians cannot reverse a secure hash.</p>
+                    </div>
+                    <div class="feature-card"
+                        style="text-align: left; background: rgba(239, 68, 68, 0.05); border-color: rgba(239, 68, 68, 0.2);">
+                        <h3 style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px; color: #b91c1c;">
+                            <i data-feather="alert-triangle"></i> 2. The Interception Risk
+                        </h3>
+                        <p style="margin: 0; color: #991b1b;">If a malicious app on the user's phone intercepts the URI
+                            redirect containing the Auth Code, it will try to instantly trade that code for an Access
+                            Token at the <code>/token</code> endpoint.</p>
+                    </div>
+                    <div class="feature-card" style="text-align: left;">
+                        <h3 style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;"><i
+                                data-feather="shield"></i> 3. The Proof (Verifier)</h3>
+                        <p style="margin: 0;">The EHR requires the app trading the code to present the <em>original,
+                                unhashed Verifier</em>. The malicious app doesn't know the Verifier. The legitimate app
+                            does. The EHR issues the token to the legitimate app and denies the attacker.</p>
+                    </div>
+                </div>
+
+                <div class="page-navigation" style="margin-top: 48px;">
+                    <a href="#section-8" class="nav-btn prev"><i data-feather="arrow-left"></i> Prev: SMART Scopes</a>
+                    <a href="#section-6" class="nav-btn next">Next: Embed Launch <i data-feather="arrow-right"></i></a>
+                </div>
+            </section>
+
+            <!-- SECTION 6: EMBED LAUNCH -->
+            <section id="section-6" class="page-section">
+                <h1>🏥 7. Embed Launch (EHR Launch)</h1>
+                <p class="lead">For single-page applications embedded directly inside a clinician's EHR interface (often
+                    rendered within an iFrame or integrated browser window).</p>
+
+                <h3>1. The Use Case and The "Magic" of Context</h3>
+                <p><strong>Scenario:</strong> Dr. House is currently viewing Patient John Doe's chart inside Cerner
+                    PowerChart. He navigates to a designated tab and clicks "Open Growth Chart SMART App".</p>
+                <p>Unlike a Standalone launch, the app does not show a login screen. It doesn't even ask the doctor to
+                    search for John Doe. The app <em>instantly</em> opens and displays John Doe's data. This magical
+                    inheritance of active context is the hallmark of an Embed Launch.</p>
+
+                <h3>2. Sequence Diagram: The EHR Launch Flow</h3>
+                <div
+                    style="background: white; padding: 24px; border-radius: 12px; margin-bottom: 32px; border: 1px solid var(--color-border); overflow-x: auto;">
+                    <div class="mermaid">
+                        sequenceDiagram
+                        participant Doc as Clinician
+                        participant EHR as EHR UI (Epic/Cerner)
+                        participant A as SMART App (iFrame)
+                        participant Auth as EHR Auth Server
+
+                        Doc->>EHR: Opens Patient Chart & Clicks App Link
+                        EHR->>A: Navigates to App's /launch URL (Query: ?launch=abc&iss=https...)
+                        Note over A: App saves 'launch' token locally
+                        A->>Auth: Redirect to /authorize (passes client_id & launch=abc)
+                        Auth->>Auth: Reads 'launch' token to remember active Patient
+                        Note over Auth: Clinician is already logged into EHR. Auto-SSO!
+                        Auth->>A: Redirect back to App with Auth Code
+                        A->>Auth: POST /token (Sends Code)
+                        Auth->>A: Returns Access Token + Context (patient_id, encounter_id)
+                    </div>
+                </div>
+
+                <h3>3. Breaking Down the Context Payload</h3>
+                <p>The primary architectural difference is the <code>launch</code> parameter. The EHR generates this
+                    opaque string right before it opens the app's iframe. The app blindly passes this string back to the
+                    Auth Server during the OAuth handshake.</p>
+                <p>Because the Auth Server generated the launch token, it knows exactly which chart the doctor was
+                    looking at. When the final Access Token is returned, the EHR attaches the crucial contextual IDs
+                    directly to the JSON response.</p>
+
+                <div class="code-block" style="margin-top: 16px;">
+                    <div class="code-header">Example Token Response Endpoint JSON</div>
+                    <code>{
+  "access_token": "eyJhbGciOiJSUzI1NiIs...",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "scope": "patient/*.read openid fhirUser",
+  "patient": "12b3c4d5",        // App immediately knows the active patient!
+  "encounter": "987654321",     // App knows the active visit/encounter
+  "smart_style_url": "https://..." 
+}</code>
+                </div>
+
+                <div class="callout tip">
+                    <i data-feather="eye" class="callout-icon"></i>
+                    <div class="callout-content">
+                        <strong>The Golden Rule of Embed:</strong> With an Embed Launch, your application's UI should
+                        <em>never</em> prompt the user to search for a patient. Your app must strictly honor the
+                        <code>patient</code> ID passed in the token exchange response to prevent accidentally showing
+                        the wrong patient's data in the chart view.
+                    </div>
+                </div>
+
+                <div class="page-navigation" style="margin-top: 48px;">
+                    <a href="#section-5" class="nav-btn prev"><i data-feather="arrow-left"></i> Prev: Standalone
+                        Launch</a>
+                    <a href="#section-7" class="nav-btn next">Next: Backend Launch <i
+                            data-feather="arrow-right"></i></a>
+                </div>
+            </section>
+
+            <!-- SECTION 7: BACKEND LAUNCH -->
+            <section id="section-7" class="page-section">
+                <h1>⚙️ 8. Backend Launch (System to System)</h1>
+                <p class="lead">A high-security authentication workflow designed exclusively for server daemons, CRON
+                    jobs, and bulk data extraction without human users.</p>
+
+                <h3>1. The Problem: No Human "Consent"</h3>
+                <p>In Standalone and Embed launches, a human always clicks an "I Agree" button. For background tasks
+                    (like syncing all appointments overnight), there is no human. Therefore, the server application
+                    itself must mathematically prove its identity to the EHR without relying on a shared password
+                    (client secret).</p>
+
+                <h3>2. Sequence Diagram: Two-Legged JWT Bearer Flow</h3>
+                <div
+                    style="background: white; padding: 24px; border-radius: 12px; margin-bottom: 32px; border: 1px solid var(--color-border); overflow-x: auto;">
+                    <div class="mermaid">
+                        sequenceDiagram
+                        participant App as Backend App (Daemon)
+                        participant Auth as EHR Auth Server
+                        participant FHIR as EHR FHIR API
+
+                        Note over App: Cron Job Starts
+                        App->>App: 1. Generate local JWT payload
+                        App->>App: 2. Sign JWT using local RSA Private Key
+                        App->>Auth: 3. POST /token (Sends signed JWT + client_id)
+                        Auth->>App: 4. HTTP GET App's public JWKS URL
+                        App-->>Auth: Responds with Public Key Set
+                        Auth->>Auth: 5. Verify JWT Signature using Public Key
+                        Auth->>App: 6. Issue Access Token (No human consent needed)
+                        App->>FHIR: 7. GET /Appointment (Header: Bearer Token)
+                        FHIR->>App: Returns thousands of FHIR JSON records
+                    </div>
+                </div>
+
+                <h3>3. Defining the Cryptographic Trust</h3>
+                <p>The entire backend flow rests on Public Key Cryptography (Asymmetric Encryption). Here's how building
+                    that trust works:</p>
+
+                <div class="feature-grid" style="grid-template-columns: 1fr; gap: 16px; margin-top: 16px;">
+                    <div class="feature-card" style="text-align: left;">
+                        <h3 style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;"><i
+                                data-feather="key"></i> 1. The Keypair</h3>
+                        <p style="margin: 0;">You generate an RSA or EC Keypair. The <strong>Private Key</strong> never
+                            leaves your secure server environment. It is the absolute secret.</p>
+                    </div>
+                    <div class="feature-card" style="text-align: left;">
+                        <h3 style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;"><i
+                                data-feather="globe"></i> 2. The JWKS (JSON Web Key Set)</h3>
+                        <p style="margin: 0;">You convert the corresponding <strong>Public Key</strong> into a
+                            standardized JSON format (JWKS) and host it securely on the internet where the EHR can reach
+                            it.</p>
+                    </div>
+                    <div class="feature-card" style="text-align: left;">
+                        <h3 style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;"><i
+                                data-feather="file-text"></i> 3. The Signed Assertion</h3>
+                        <p style="margin: 0;">Instead of sending a password to <code>/token</code>, you construct a JWT
+                            containing your <code>client_id</code>, sign it with your Private Key, and send that. The
+                            EHR fetches your Public Key to mathematically verify you are the true owner of the Private
+                            Key.</p>
+                    </div>
+                </div>
+
+                <div class="code-block" style="margin-top: 24px;">
+                    <div class="code-header">Example Payload Your Server Must Sign</div>
+                    <code>{
+  "iss": "my-client-id",
+  "sub": "my-client-id",
+  "aud": "https://ehr.hospital.org/oauth2",
+  "exp": 1700003600,
+  "jti": "random-uuid-xyz-123"
+}</code>
+                </div>
+
+                <div class="page-navigation" style="margin-top: 48px;">
+                    <a href="#section-6" class="nav-btn prev"><i data-feather="arrow-left"></i> Prev: Embed Launch</a>
+                    <a href="#section-9" class="nav-btn next">Next: Building Clients <i
+                            data-feather="arrow-right"></i></a>
+                </div>
+            </section>
+
+            <!-- SECTION 8: SMART SCOPES -->
+            <section id="section-8" class="page-section">
+                <h1>🛡️ 5. SMART Scopes & Permissions</h1>
+                <p class="lead">Granular, predictable access control to ensure minimal required data is accessed.</p>
+
+                <h3>1. The Evolution: v1 vs v2 Scopes</h3>
+                <p>When an application requests access, it must define exactly what it needs to do. In early SMART
+                    versions (v1), scopes were broad and often misunderstood. SMART v2 introduced a much more granular,
+                    standardized format.</p>
+                <div class="code-block" style="margin-bottom: 24px">
+                    <div class="code-header">SMART v2 Scope Syntax Format</div>
+                    <code>[context] / [resource] . [action] ? [optional parameters]</code>
+                </div>
+
+                <div class="feature-grid" style="margin-top: 24px;">
+                    <div class="feature-card">
+                        <h3 style="color: #ef4444;"><i data-feather="target"></i> Context</h3>
+                        <p>Defines the bounding box of the data. <code>patient</code> means data belonging to a single
+                            specific patient. <code>user</code> means data the currently logged-in clinician can see.
+                            <code>system</code> means unrestricted bulk access.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <h3 style="color: #7234ae;"><i data-feather="database"></i> Resource</h3>
+                        <p>The exact FHIR Resource Type (e.g., <code>Observation</code>, <code>Encounter</code>,
+                            <code>Condition</code>). You can also use <code>*</code> to request all resources.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <h3 style="color: #3b82f6;"><i data-feather="edit-2"></i> Action</h3>
+                        <p>The CRUD operation allowed. Standard actions are <code>c</code> (create), <code>r</code>
+                            (read), <code>u</code> (update), <code>d</code> (delete), or <code>s</code> (search).</p>
+                    </div>
+                </div>
+
+                <div class="ref-divider"></div>
+
+                <h3>2. Clinical Scope Translators</h3>
+                <p>Translating clinical needs into scopes requires understanding exactly which FHIR resource holds what
+                    data. Here is a cheat sheet of common requirements for apps:</p>
+
+                <table class="ref-table" style="margin-top: 16px;">
+                    <thead>
+                        <tr>
+                            <th>Requested Clinical Data</th>
+                            <th>Required FHIR Resource(s)</th>
+                            <th>Example Scope Request</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Patient Demographics</strong></td>
+                            <td><code>Patient</code></td>
+                            <td><code
+                                    style="background-color: transparent; border: none; padding: 0; color: #ef4444;">patient/Patient.rs</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Vitals, Labs, Smoking Status</strong></td>
+                            <td><code>Observation</code></td>
+                            <td><code
+                                    style="background-color: transparent; border: none; padding: 0; color: #7234ae;">patient/Observation.rs</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Allergies & Intolerances</strong></td>
+                            <td><code>AllergyIntolerance</code></td>
+                            <td><code
+                                    style="background-color: transparent; border: none; padding: 0; color: #3b82f6;">patient/AllergyIntolerance.rs</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Medications & Prescriptions</strong></td>
+                            <td><code>MedicationRequest</code>, <code>MedicationStatement</code></td>
+                            <td><code
+                                    style="background-color: transparent; border: none; padding: 0; color: #ef4444;">patient/MedicationRequest.rs</code>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Write Notes to Chart</strong></td>
+                            <td><code>DocumentReference</code></td>
+                            <td><code
+                                    style="background-color: transparent; border: none; padding: 0; color: #7234ae;">patient/DocumentReference.c</code>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="ref-divider"></div>
+
+                <h3>3. Essential Non-Clinical Scopes</h3>
+                <p>Beyond clinical data, your app must request foundational scopes to make the launch work successfully.
+                </p>
+                <ul class="benefits-list">
+                    <li style="display: block; text-align: left; margin-bottom: 8px;"><strong><code
+                                style="background: none; border: none; padding: 0;">openid</code> & <code
+                                style="background: none; border: none; padding: 0;">fhirUser</code>:</strong> Critical
+                        for enabling the OpenID Connect flow. Instructs the server to return an ID token with the user's
+                        demographic reference.</li>
+                    <li style="display: block; text-align: left; margin-bottom: 8px;"><strong><code
+                                style="background: none; border: none; padding: 0;">offline_access</code>:</strong>
+                        Requests a Refresh Token. Without this, your app will lose access the moment the initial access
+                        token expires (usually after 15-60 minutes).</li>
+                    <li style="display: block; text-align: left; margin-bottom: 8px;"><strong><code
+                                style="background: none; border: none; padding: 0;">launch/patient</code>:</strong>
+                        Instructs the EHR to trigger a "Patient Selector" UI during login so the provider can choose
+                        which patient chart they want the app to open.</li>
+                </ul>
+
+                <div class="page-navigation" style="margin-top: 48px;">
+                    <a href="#section-4" class="nav-btn prev"><i data-feather="arrow-left"></i> Prev: Config &
+                        Discovery</a>
+                    <a href="#section-5" class="nav-btn next">Next: Standalone Launch <i
+                            data-feather="arrow-right"></i></a>
+                </div>
+            </section>
+
+            <!-- SECTION 9: BUILDING CLIENTS -->
+            <section id="section-9" class="page-section">
+                <h1>💻 9. Building Clients (Internal)</h1>
+                <p class="lead">Using the ConnectHealth ECW Integration Submodule for all internal launches.</p>
+
+                <h3>The ECW Integration Submodule</h3>
+                <p>For all internal integration, we use our dedicated Node/Express submodule. It encapsulates
+                    eClinicalWorks' auth and FHIR behavior behind a vendor-agnostic surface, handling PKCE, JWKS, and
+                    strict security natively so you don't have to build OAuth from scratch.</p>
+
+                <div class="code-block" style="margin-bottom: 24px;">
+                    <div class="code-header">Service Architecture</div>
+                    <code>import { OAuthServiceFactory } from 'src/domains/nodered/services/oauth/OAuthServiceFactory';
+const ecwOAuth = OAuthServiceFactory.getService('ecw');</code>
+                </div>
+
+                <h3>Setup by Launch Type</h3>
+                <p>The submodule provides dedicated methods for each SMART launch type:</p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <i data-feather="server"></i>
+                        <h3>1. Backend Launch</h3>
+                        <p>Uses JWT Bearer assertion (RS384). No user interaction required.</p>
+                        <div class="code-block" style="margin-top: 12px; font-size: 0.75em; padding: 12px;">
+                            <code>const tokens = await ecwOAuth.generateBackendToken({
+  client_id: 'your-id',
+  app_type: 'confidential',
+  private_key: '...',
+  token_url: '...',
+  fhir_base_url: '...'
+});</code>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <i data-feather="smartphone"></i>
+                        <h3>2. Standalone Launch</h3>
+                        <p>Patient/Provider flows with mandatory PKCE sequence.</p>
+                        <div class="code-block" style="margin-top: 12px; font-size: 0.75em; padding: 12px;">
+                            <code>// 1. Generate URL + PKCE
+const { authUrl, code_verifier } = 
+  await ecwOAuth.generateAuthUrl(...);
+
+// 2. Exchange Code
+const tokens = await ecwOAuth.exchangeCodeForToken(
+  config, code, code_verifier, ...
+);</code>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <i data-feather="layout"></i>
+                        <h3>3. Embed Launch</h3>
+                        <p>For SMART apps launched internally from within ECW's EHR interface.</p>
+                        <div class="code-block" style="margin-top: 12px; font-size: 0.75em; padding: 12px;">
+                            <code>// 1. Process Launch Token
+const { redirect, code_verifier } = 
+  await ecwOAuth.handleEmbedLaunch(...);
+
+// 2. Exchange Code
+const tokens = await ecwOAuth.exchangeCodeForToken(...);</code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="page-navigation">
+                    <a href="#section-7" class="nav-btn prev"><i data-feather="arrow-left"></i> Prev: Backend Launch</a>
+                    <div class="nav-btn next" style="visibility: hidden;"></div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        // Init Feather Icons
+        feather.replace();
+        // Init Mermaid with a theme that matches our custom UI
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                primaryColor: '#eef2ff',
+                primaryTextColor: '#334155',
+                primaryBorderColor: '#818cf8',
+                lineColor: '#645cbe',
+                secondaryColor: '#f8fafc',
+                tertiaryColor: '#fff'
+            }
+        });
+    </script>
+</body>
+
+</html>
