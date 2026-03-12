@@ -66,7 +66,7 @@
 
             <div class="sidebar-category">Development</div>
             <ul class="nav-links">
-                <li><a href="#section-9"><i data-feather="code"></i> Building Clients</a></li>
+                <li><a href="#section-9"><i data-feather="code"></i> HC Integration Module</a></li>
             </ul>
 
         </div>
@@ -850,7 +850,8 @@
                             <li style="display:block; padding: 8px 12px;"><i data-feather="check"
                                     style="color:#22c55e;"></i> Access is scoped to one patient or one user's view</li>
                         </ul>
-                        <div style="margin-top: 16px; padding: 12px 16px; background: rgba(56,184,179,0.06); border-radius: 8px; border: 1px solid rgba(56,184,179,0.2);">
+                        <div
+                            style="margin-top: 16px; padding: 12px 16px; background: rgba(56,184,179,0.06); border-radius: 8px; border: 1px solid rgba(56,184,179,0.2);">
                             <strong style="color: var(--color-primary);">Launch patterns:</strong>
                             <span style="color: var(--color-text-muted);">Standalone Launch · Embed (EHR) Launch</span>
                         </div>
@@ -871,7 +872,8 @@
                                 <code>patient/</code> or <code>user/</code>
                             </li>
                         </ul>
-                        <div style="margin-top: 16px; padding: 12px 16px; background: rgba(114,52,174,0.06); border-radius: 8px; border: 1px solid rgba(114,52,174,0.2);">
+                        <div
+                            style="margin-top: 16px; padding: 12px 16px; background: rgba(114,52,174,0.06); border-radius: 8px; border: 1px solid rgba(114,52,174,0.2);">
                             <strong style="color: var(--color-secondary);">Launch pattern:</strong>
                             <span style="color: var(--color-text-muted);">Backend Services (JWT Bearer)</span>
                         </div>
@@ -933,7 +935,8 @@
                     directly dictates which security mechanism you must use.</p>
 
                 <div class="feature-grid" style="margin-bottom: 16px;">
-                    <div class="feature-card" style="text-align: left; background: rgba(239,68,68,0.03); border-color: rgba(239,68,68,0.2);">
+                    <div class="feature-card"
+                        style="text-align: left; background: rgba(239,68,68,0.03); border-color: rgba(239,68,68,0.2);">
                         <i data-feather="smartphone" style="color: #ef4444;"></i>
                         <h3 style="margin-top: 8px; color: #b91c1c;">Public Client</h3>
                         <p><strong>Cannot protect secrets.</strong> The app runs on the end-user's device — in a browser
@@ -946,12 +949,14 @@
                             <li style="display:block; padding: 8px 12px;">iOS / Android native apps</li>
                             <li style="display:block; padding: 8px 12px;">Desktop Electron apps</li>
                         </ul>
-                        <div style="margin-top: 16px; padding: 12px; background: rgba(239,68,68,0.06); border-radius: 8px; border: 1px solid rgba(239,68,68,0.15);">
+                        <div
+                            style="margin-top: 16px; padding: 12px; background: rgba(239,68,68,0.06); border-radius: 8px; border: 1px solid rgba(239,68,68,0.15);">
                             <strong style="color: #b91c1c;">Security mechanism:</strong> <strong>PKCE</strong> — a
                             dynamic per-session proof that replaces the static secret.
                         </div>
                     </div>
-                    <div class="feature-card" style="text-align: left; background: rgba(56,184,179,0.03); border-color: rgba(56,184,179,0.25);">
+                    <div class="feature-card"
+                        style="text-align: left; background: rgba(56,184,179,0.03); border-color: rgba(56,184,179,0.25);">
                         <i data-feather="lock" style="color: var(--color-primary);"></i>
                         <h3 style="margin-top: 8px; color: var(--color-primary);">Confidential Client</h3>
                         <p><strong>Can protect secrets.</strong> The app runs on a server you control. User browsers
@@ -965,7 +970,8 @@
                                 pattern)</li>
                             <li style="display:block; padding: 8px 12px;">Apps registered with asymmetric JWKS keys</li>
                         </ul>
-                        <div style="margin-top: 16px; padding: 12px; background: rgba(56,184,179,0.06); border-radius: 8px; border: 1px solid rgba(56,184,179,0.2);">
+                        <div
+                            style="margin-top: 16px; padding: 12px; background: rgba(56,184,179,0.06); border-radius: 8px; border: 1px solid rgba(56,184,179,0.2);">
                             <strong style="color: var(--color-primary);">Security mechanism:</strong>
                             <strong>client_secret</strong> or <strong>private_key_jwt</strong> (asymmetric — preferred).
                         </div>
@@ -1032,7 +1038,8 @@
 
                 <div class="feature-grid" style="grid-template-columns: 1fr; gap: 12px;">
                     <div class="feature-card" style="text-align: left; padding: 20px 24px;">
-                        <p style="margin: 0; font-size: 1rem;"><strong>Q1: Is there a human user authenticating?</strong></p>
+                        <p style="margin: 0; font-size: 1rem;"><strong>Q1: Is there a human user
+                                authenticating?</strong></p>
                         <p style="margin: 8px 0 0 0; color: var(--color-text-muted);">
                             <strong style="color: #ef4444;">No</strong> → Use <strong>Backend Services Launch</strong>.
                             JWT Bearer, <code>system/</code> scopes, no consent screen. →
@@ -1041,7 +1048,8 @@
                         </p>
                     </div>
                     <div class="feature-card" style="text-align: left; padding: 20px 24px;">
-                        <p style="margin: 0; font-size: 1rem;"><strong>Q2: Is the user already inside the EHR when they launch your app?</strong></p>
+                        <p style="margin: 0; font-size: 1rem;"><strong>Q2: Is the user already inside the EHR when they
+                                launch your app?</strong></p>
                         <p style="margin: 8px 0 0 0; color: var(--color-text-muted);">
                             <strong style="color: #22c55e;">Yes</strong> → Use <strong>Embed (EHR) Launch</strong>. The
                             EHR injects context (patient + encounter) automatically. SSO — no extra login. →
@@ -1050,7 +1058,8 @@
                         </p>
                     </div>
                     <div class="feature-card" style="text-align: left; padding: 20px 24px;">
-                        <p style="margin: 0; font-size: 1rem;"><strong>Q3: Does your app run entirely in the browser or on a mobile device?</strong></p>
+                        <p style="margin: 0; font-size: 1rem;"><strong>Q3: Does your app run entirely in the browser or
+                                on a mobile device?</strong></p>
                         <p style="margin: 8px 0 0 0; color: var(--color-text-muted);">
                             <strong style="color: #22c55e;">Yes</strong> → <strong>Standalone Launch, Public
                                 Client</strong>. Use PKCE. No
@@ -1096,7 +1105,8 @@
                         Auth-->>A: authorization_endpoint, token_endpoint
                         A->>A: Generate code_verifier (random, 43-128 chars)
                         A->>A: code_challenge = BASE64URL(SHA256(verifier))
-                        A->>U: Redirect → authorization_endpoint?response_type=code&client_id=...&code_challenge=...&scope=launch/patient+patient/*.rs+openid+fhirUser
+                        A->>U: Redirect →
+                        authorization_endpoint?response_type=code&client_id=...&code_challenge=...&scope=launch/patient+patient/*.rs+openid+fhirUser
                         U->>Auth: User logs in & grants consent
                         Auth->>A: Redirect → redirect_uri?code=abc123&state=xyz
                         A->>A: Validate state matches stored value
@@ -1177,7 +1187,8 @@ window.location.assign(`${authorization_endpoint}?${params}`);</code></pre>
                 <h4>Step 4 — Handle the Callback & Validate State</h4>
                 <p>The EHR redirects back to your <code>redirect_uri</code> with <code>?code=…&state=…</code>.
                     <strong>Always validate the state</strong> before proceeding — a mismatch indicates a CSRF
-                    attack.</p>
+                    attack.
+                </p>
                 <div class="code-block">
                     <div class="code-header">Step 4 · Callback Validation</div>
                     <pre><code class="language-javascript">const urlParams    = new URLSearchParams(window.location.search);
@@ -1267,6 +1278,7 @@ const observations = await fetch(
                     server resolves it into a context-aware access token.</p>
 
                 <h3>2. How Embed Differs from Standalone</h3>
+
                 <table class="ref-table">
                     <thead>
                         <tr>
@@ -1309,7 +1321,103 @@ const observations = await fetch(
                     </tbody>
                 </table>
 
-                <h3>3. Sequence Diagram</h3>
+                <div class="ref-divider"></div>
+
+                <h3>3. The Initial Handshake — What the EHR Sends</h3>
+                <p>Before your app does anything, the EHR makes the first move. It navigates your registered launch
+                    URL with exactly two query parameters. These two values are the entire starting context for the
+                    embed flow — everything downstream is derived from them.</p>
+
+                <div class="code-block">
+                    <div class="code-header">What the EHR navigates to — your /launch URL</div>
+                    <pre><code class="language-text">GET https://your-app.com/launch
+  ?iss=https://fhir.ecwcloud.com/fhir/r4/FFBJCD
+  &launch=eyJhbGciOiJub25lIn0.eyJwYXRpZW50IjoiMTIzIn0.</code></pre>
+                </div>
+
+                <div class="feature-grid">
+                    <div class="feature-card" style="text-align: left;">
+                        <h3 style="margin-top: 0; color: var(--color-primary);"><i data-feather="link"></i>
+                            <code>iss</code> — Issuer / FHIR Base URL
+                        </h3>
+                        <p><strong>What it is:</strong> The base URL of the EHR's FHIR server that this specific
+                            clinician session is connected to. Think of it as the "address" of the EHR instance
+                            that launched your app.</p>
+                        <p><strong>What you do with it:</strong></p>
+                        <ul class="benefits-list" style="padding: 0; margin: 0;">
+                            <li style="display:block; padding: 8px 12px;">Append
+                                <code>/.well-known/smart-configuration</code> to discover the
+                                <code>authorization_endpoint</code> and <code>token_endpoint</code>.
+                            </li>
+                            <li style="display:block; padding: 8px 12px;">Use it as the <code>aud</code> parameter
+                                in your authorization request — binds your token to this specific server.</li>
+                            <li style="display:block; padding: 8px 12px;">Use it as the base for all FHIR API calls
+                                (e.g., <code>{iss}/Patient/{id}</code>).</li>
+                        </ul>
+                        <div class="code-block" style="margin: 16px 0 0 0;">
+                            <div class="code-header">ECW Example</div>
+                            <pre><code class="language-text">iss = https://fhir.ecwcloud.com/fhir/r4/FFBJCD
+              └── tenant-specific FHIR base
+                  (FFBJCD = the practice identifier)</code></pre>
+                        </div>
+                        <p style="margin-top: 12px; margin-bottom: 0;"><strong>Security:</strong> Always validate
+                            that the <code>iss</code> value matches a known, expected FHIR base URL before making
+                            any requests. Never blindly trust an arbitrary URL passed in by the EHR — a misconfigured
+                            or malicious redirect could point your app at a different server.</p>
+                    </div>
+
+                    <div class="feature-card" style="text-align: left;">
+                        <h3 style="margin-top: 0; color: var(--color-secondary);"><i data-feather="hash"></i>
+                            <code>launch</code> — Opaque Context Token
+                        </h3>
+                        <p><strong>What it is:</strong> A short-lived, opaque string the EHR generates
+                            <em>at the moment</em> it opens your app. It is a sealed envelope that contains the
+                            EHR's knowledge of the active session — which patient chart is open, which encounter
+                            is active, which clinician is logged in. Your app cannot read its contents.
+                        </p>
+                        <p><strong>What you do with it:</strong></p>
+                        <ul class="benefits-list" style="padding: 0; margin: 0;">
+                            <li style="display:block; padding: 8px 12px;">Store it immediately in
+                                <code>sessionStorage</code> or your server session.
+                            </li>
+                            <li style="display:block; padding: 8px 12px;">Echo it back as the <code>launch</code>
+                                query parameter in your authorization request.</li>
+                            <li style="display:block; padding: 8px 12px;">Include <code>launch</code> in your
+                                <code>scope</code> string to signal you're doing an EHR launch.
+                            </li>
+                            <li
+                                style="display:block; padding: 8px 12px; background: rgba(239,68,68,0.04); border-color: rgba(239,68,68,0.15);">
+                                <strong>Never</strong> attempt to decode, store long-term, or reuse it. It is valid
+                                only for a single authorization request and expires in seconds.
+                            </li>
+                        </ul>
+                        <div class="code-block" style="margin: 16px 0 0 0;">
+                            <div class="code-header">How it flows back in the auth request</div>
+                            <pre><code class="language-text">GET /authorize
+  ?response_type=code
+  &client_id=YOUR_CLIENT_ID
+  &launch=eyJhbGciOiJub25lIn0...   ← echoed back
+  &scope=launch patient/*.rs openid
+                  ↑
+          signals EHR launch mode</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="callout tip" style="margin-top: 8px;">
+                    <i data-feather="info" class="callout-icon"></i>
+                    <div class="callout-content">
+                        <strong>Why is <code>launch</code> opaque?</strong> The EHR deliberately doesn't let your
+                        app read the context from the launch token directly. The context is only revealed after a
+                        successful OAuth flow — meaning the EHR has verified your <code>client_id</code>, confirmed
+                        you're a registered app, and decided it's safe to hand over patient data. The opaque token
+                        is the gatekeeper.
+                    </div>
+                </div>
+
+                <div class="ref-divider"></div>
+
+                <h3>4. Sequence Diagram</h3>
                 <div class="diagram-container">
                     <div class="mermaid">
                         sequenceDiagram
@@ -1324,7 +1432,8 @@ const observations = await fetch(
                         A->>Auth: GET iss/.well-known/smart-configuration
                         Auth-->>A: authorization_endpoint, token_endpoint
                         A->>A: Generate PKCE verifier + challenge, store state
-                        A->>Auth: GET /authorize?launch=opaque-xyz&scope=launch+patient/*.rs+openid+fhirUser&code_challenge=...
+                        A->>Auth: GET
+                        /authorize?launch=opaque-xyz&scope=launch+patient/*.rs+openid+fhirUser&code_challenge=...
                         Note over Auth: Clinician already has EHR session — SSO, no login page shown
                         Auth->>Auth: Unwrap launch token → patient + encounter resolved
                         Auth->>A: Redirect /callback?code=abc&state=xyz
@@ -1336,7 +1445,7 @@ const observations = await fetch(
                     </div>
                 </div>
 
-                <h3>4. The Token Response — What the EHR Gives You</h3>
+                <h3>5. The Token Response — What the EHR Gives You</h3>
                 <p>This is what makes Embed Launch special. Beyond the standard OAuth fields, the EHR injects
                     clinical context fields directly into the token JSON. Your app should read all of them.</p>
 
@@ -1379,7 +1488,7 @@ const observations = await fetch(
                     </div>
                 </div>
 
-                <h3>5. Step-by-Step Implementation</h3>
+                <h3>6. Step-by-Step Implementation</h3>
 
                 <h4>Step 1 — Handle the <code>/launch</code> Route</h4>
                 <p>Register a launch URL with the EHR developer portal. The EHR navigates your iFrame to this URL
@@ -1387,14 +1496,18 @@ const observations = await fetch(
                     options depending on your client type:</p>
 
                 <div class="feature-grid" style="margin-bottom: 16px;">
-                    <div class="feature-card" style="text-align:left; background: rgba(56,184,179,0.03); border-color: rgba(56,184,179,0.25);">
-                        <h3 style="margin-top:0; color: var(--color-primary);"><i data-feather="monitor"></i> SPA / Public Client</h3>
+                    <div class="feature-card"
+                        style="text-align:left; background: rgba(56,184,179,0.03); border-color: rgba(56,184,179,0.25);">
+                        <h3 style="margin-top:0; color: var(--color-primary);"><i data-feather="monitor"></i> SPA /
+                            Public Client</h3>
                         <p>The iFrame loads a React/Vue app. All OAuth logic runs in the browser. State is stored in
                             <code>sessionStorage</code>. This is the most common pattern for lightweight SMART widgets.
                         </p>
                     </div>
-                    <div class="feature-card" style="text-align:left; background: rgba(114,52,174,0.03); border-color: rgba(114,52,174,0.2);">
-                        <h3 style="margin-top:0; color: var(--color-secondary);"><i data-feather="server"></i> Server-Side / Confidential Client</h3>
+                    <div class="feature-card"
+                        style="text-align:left; background: rgba(114,52,174,0.03); border-color: rgba(114,52,174,0.2);">
+                        <h3 style="margin-top:0; color: var(--color-secondary);"><i data-feather="server"></i>
+                            Server-Side / Confidential Client</h3>
                         <p>The iFrame loads a page served by your backend (Node/Express). The token exchange happens
                             on the server, never in the browser. Tokens live in a server-side session. More secure
                             — preferred for production apps.
@@ -1480,7 +1593,8 @@ window.location.assign(`${authorization_endpoint}?${authParams}`);</code></pre>
                 <h4>Step 2 — Handle the Callback & Exchange Code</h4>
                 <p>The token exchange is identical to Standalone — validate state, POST code + verifier. What
                     changes is what you do with the response: extract and store <code>patient</code>,
-                    <code>encounter</code>, and <code>need_patient_banner</code>.</p>
+                    <code>encounter</code>, and <code>need_patient_banner</code>.
+                </p>
 
                 <div class="code-block">
                     <div class="code-header">Step 2 · Callback — SPA (browser)</div>
@@ -1622,7 +1736,140 @@ function App() {
                     </div>
                 </div>
 
-                <h3>3. The Cryptographic Trust Model</h3>
+                <h3>3. The Token Exchange Anatomy — What Your Server Sends & Gets</h3>
+                <p>Unlike Standalone or Embed launch, there is no browser redirect, no authorization code, and no
+                    user interaction. Your server makes a single POST to the token endpoint with a signed JWT as its
+                    identity proof. Here is the exact anatomy of that exchange.</p>
+
+                <div class="ref-divider"></div>
+
+                <h4>Part A — The JWT Assertion Claims</h4>
+                <p>The JWT you sign is your server's identity credential. It must include exactly five claims — no
+                    more, no less. Missing any one will cause the EHR to reject the request.</p>
+
+                <div class="feature-grid">
+                    <div class="feature-card" style="text-align: left;">
+                        <h3 style="margin-top:0; color: var(--color-primary);"><i data-feather="user"></i>
+                            <code>iss</code> &amp; <code>sub</code> — Who You Are
+                        </h3>
+                        <p>Both are set to your <strong>registered <code>client_id</code></strong>. This tells the
+                            EHR which application is making the request. The EHR uses <code>iss</code> to look up
+                            your registered JWKS URL and fetch your public key.</p>
+                        <div class="code-block" style="margin: 12px 0 0 0;">
+                            <div class="code-header">Example</div>
+                            <pre><code class="language-json">{
+  "iss": "mindbowser-maia-backend",
+  "sub": "mindbowser-maia-backend"
+}</code></pre>
+                        </div>
+                    </div>
+                    <div class="feature-card" style="text-align: left;">
+                        <h3 style="margin-top:0; color: var(--color-secondary);"><i data-feather="target"></i>
+                            <code>aud</code> — Where You're Sending It
+                        </h3>
+                        <p>The <strong>exact URL of the token endpoint</strong> you're posting to. This binds the
+                            JWT to a specific server — a JWT signed for Epic's token endpoint cannot be replayed
+                            against ECW's token endpoint.</p>
+                        <div class="code-block" style="margin: 12px 0 0 0;">
+                            <div class="code-header">Example</div>
+                            <pre><code class="language-json">{
+  "aud": "https://fhir.ecwcloud.com/oauth2/token"
+}</code></pre>
+                        </div>
+                    </div>
+                    <div class="feature-card" style="text-align: left;">
+                        <h3 style="margin-top:0; color: var(--color-primary);"><i data-feather="clock"></i>
+                            <code>exp</code> — Short-Lived Window
+                        </h3>
+                        <p>Unix timestamp — <strong>must be within 5 minutes</strong> of the current time. The EHR
+                            will reject assertions with an expiry further than 300 seconds in the future. This
+                            forces key rotation and prevents stale credentials from being reused.</p>
+                        <div class="code-block" style="margin: 12px 0 0 0;">
+                            <div class="code-header">Example (now + 300s)</div>
+                            <pre><code class="language-javascript">exp: Math.floor(Date.now() / 1000) + 300</code></pre>
+                        </div>
+                    </div>
+                    <div class="feature-card" style="text-align: left;">
+                        <h3 style="margin-top:0; color: var(--color-secondary);"><i data-feather="shuffle"></i>
+                            <code>jti</code> — Replay Prevention
+                        </h3>
+                        <p>A <strong>unique identifier per request</strong> — typically a UUID v4. The EHR caches
+                            seen <code>jti</code> values for the JWT's lifetime window. Sending the same
+                            <code>jti</code> twice (even with a fresh <code>exp</code>) results in a
+                            <code>invalid_grant</code> rejection.
+                        </p>
+                        <div class="code-block" style="margin: 12px 0 0 0;">
+                            <div class="code-header">Example</div>
+                            <pre><code class="language-javascript">jti: crypto.randomUUID() // fresh every call</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ref-divider"></div>
+
+                <h4>Part B — The Full POST /token Request</h4>
+                <div class="code-block">
+                    <div class="code-header">Backend Token Request — form-encoded body</div>
+                    <pre><code class="language-text">POST https://fhir.ecwcloud.com/oauth2/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type            = client_credentials
+client_assertion_type = urn:ietf:params:oauth:client-assertion-type:jwt-bearer
+client_assertion      = eyJhbGciOiJSUzM4NCI...  ← your signed JWT
+scope                 = system/Patient.rs system/Observation.rs system/Appointment.rs</code></pre>
+                </div>
+
+                <div class="ref-divider"></div>
+
+                <h4>Part C — The Token Response</h4>
+                <p>The backend token response is deliberately minimal. There is <strong>no patient, no encounter, no
+                        identity token</strong> — the system scope has no user context to attach.</p>
+
+                <div class="code-block">
+                    <div class="code-header">Backend Token Response (ECW / Epic)</div>
+                    <pre><code class="language-json">{
+  "access_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6Imp3dCJ9...",
+  "token_type":   "bearer",
+  "expires_in":   300,
+  "scope":        "system/Patient.rs system/Observation.rs system/Appointment.rs"
+}</code></pre>
+                </div>
+
+                <div class="feature-grid" style="margin-top: 8px;">
+                    <div class="feature-card" style="text-align:left;">
+                        <h3 style="margin-top:0;"><i data-feather="key"></i> <code>access_token</code></h3>
+                        <p style="margin:0;">A signed JWT. Use it as <code>Authorization: Bearer &lt;token&gt;</code>
+                            on every FHIR API call. Valid for <code>expires_in</code> seconds — cache it and reuse
+                            it until near expiry.</p>
+                    </div>
+                    <div class="feature-card" style="text-align:left;">
+                        <h3 style="margin-top:0;"><i data-feather="clock"></i> <code>expires_in</code></h3>
+                        <p style="margin:0;"><strong>Usually 300 seconds (5 min)</strong> per the SMART Backend
+                            Services spec. Never hardcode this — read the value from the response and subtract a
+                            30-second buffer before requesting a fresh token.</p>
+                    </div>
+                    <div class="feature-card" style="text-align:left;">
+                        <h3 style="margin-top:0;"><i data-feather="shield"></i> <code>scope</code></h3>
+                        <p style="margin:0;">The EHR may grant a <em>narrower</em> scope than requested. Always
+                            parse the returned <code>scope</code> string and verify you received the permissions your
+                            job needs before executing bulk queries.</p>
+                    </div>
+                </div>
+
+                <div class="callout tip" style="margin-top: 8px;">
+                    <i data-feather="info" class="callout-icon"></i>
+                    <div class="callout-content">
+                        <strong>No patient context — by design.</strong> Backend tokens carry <code>system/</code>
+                        scopes that grant access to <em>all patients</em> on the server (subject to EHR admin
+                        approval). You supply the patient ID yourself in every FHIR query:
+                        <code>GET /Patient/abc123</code>. There is no EHR-injected context because there is no
+                        active user session.
+                    </div>
+                </div>
+
+                <div class="ref-divider"></div>
+
+                <h3>4. The Cryptographic Trust Model</h3>
                 <div class="feature-grid">
                     <div class="feature-card" style="text-align: left;">
                         <i data-feather="key" style="color: var(--color-secondary);"></i>
@@ -1649,7 +1896,7 @@ function App() {
                     </div>
                 </div>
 
-                <h3>4. Step-by-Step Implementation</h3>
+                <h3>5. Step-by-Step Implementation</h3>
 
                 <h4>Step 1 — Generate & Export Your Keypair</h4>
                 <div class="code-block">
@@ -1790,7 +2037,7 @@ async function syncAppointments() {
                 <div class="page-navigation">
                     <button class="nav-btn prev" data-target="#section-6"><i data-feather="arrow-left"></i> Prev:
                         Embed Launch</button>
-                    <button class="nav-btn next" data-target="#section-9">Next: Building Clients <i
+                    <button class="nav-btn next" data-target="#section-9">Next: HC Integration Module <i
                             data-feather="arrow-right"></i></button>
                 </div>
             </section>
@@ -2225,65 +2472,780 @@ patient|user    Observation           in-order             optional
 
             <!-- SECTION 9: BUILDING CLIENTS -->
             <section id="section-9" class="page-section">
-                <h1>💻 9. Building Clients (Internal)</h1>
-                <p class="lead">Using the ConnectHealth ECW Integration Submodule for all internal launches.</p>
+                <div style="display:flex; align-items:center; gap:16px; margin-bottom:8px;">
+                    <img src="hc-logo.svg" alt="Healthconnect logo" style="height:48px; width:auto;">
+                    <h1 style="margin:0;">Healthconnect Integration Module</h1>
+                </div>
+                <p class="lead">The ConnectHealth ECW Integration Submodule wraps all eClinicalWorks OAuth and FHIR
+                    behavior behind a clean, vendor-agnostic TypeScript surface — handling PKCE, JWKS, token rotation,
+                    and audit logging so you never touch raw OAuth mechanics.</p>
 
-                <h3>The ECW Integration Submodule</h3>
-                <p>For all internal integration, we use our dedicated Node/Express submodule. It encapsulates
-                    eClinicalWorks' auth and FHIR behavior behind a vendor-agnostic surface, handling PKCE, JWKS, and
-                    strict security natively so you don't have to build OAuth from scratch.</p>
-
-                <div class="code-block" style="margin-bottom: 24px;">
-                    <div class="code-header">Service Architecture</div>
-                    <pre><code class="language-javascript">import { OAuthServiceFactory } from 'src/domains/nodered/services/oauth/OAuthServiceFactory';
-const ecwOAuth = OAuthServiceFactory.getService('ecw');</code></pre>
+                <div class="callout warning" style="display: none;">
+                    <i data-feather="alert-triangle" class="callout-icon"></i>
+                    <div class="callout-content">
+                        <strong>Factory classes not yet implemented.</strong> The README documents
+                        <code>OAuthServiceFactory</code> and <code>FHIRServiceFactory</code> as the intended entry
+                        points — but these factory classes <em>do not exist yet</em> in the codebase. Only the
+                        underlying services are implemented: <code>ECWOAuthService</code>,
+                        <code>ECWFHIRService</code>, and their shared <code>ECWIntegrationService</code> facade.
+                        <strong>The factory wrapper needs to be built</strong> to store config-per-integration and
+                        expose a clean call site.
+                    </div>
                 </div>
 
-                <h3>Setup by Launch Type</h3>
-                <p>The submodule provides dedicated methods for each SMART launch type:</p>
-
+                <!-- OVERVIEW -->
+                <h3>1. What the Submodule Abstracts</h3>
                 <div class="feature-grid">
-                    <div class="feature-card">
-                        <i data-feather="server"></i>
-                        <h3>1. Backend Launch</h3>
-                        <p>Uses JWT Bearer assertion (RS384). No user interaction required.</p>
-                        <div class="code-block" style="margin-top: 12px;">
-                            <pre><code class="language-javascript">const tokens = await ecwOAuth.generateBackendToken({
-  client_id: 'your-id',
-  app_type: 'confidential',
-  private_key: '...',
-  token_url: '...',
-  fhir_base_url: '...'
-});</code></pre>
+                    <div class="feature-card" style="text-align:left;">
+                        <i data-feather="shield"></i>
+                        <h3>Mandatory PKCE (S256)</h3>
+                        <p>Every authorization flow automatically generates a <code>code_verifier</code> and
+                            <code>code_challenge</code>. You never call the raw OAuth endpoints — PKCE is always
+                            enforced.
+                        </p>
+                    </div>
+                    <div class="feature-card" style="text-align:left;">
+                        <i data-feather="key"></i>
+                        <h3>JWT Bearer (RS384)</h3>
+                        <p>Backend tokens are built, signed with your RSA-384 private key, and sent to ECW's token
+                            endpoint automatically. The <code>jti</code>, <code>exp</code>, and
+                            <code>aud</code> claims are constructed internally.
+                        </p>
+                    </div>
+                    <div class="feature-card" style="text-align:left;">
+                        <i data-feather="globe"></i>
+                        <h3>JWKS &amp; Discovery</h3>
+                        <p>Public-key hosting and SMART endpoint auto-discovery
+                            (<code>.well-known/smart-configuration</code>) are handled internally. Your code only
+                            passes a <code>fhir_base_url</code>.</p>
+                    </div>
+                    <div class="feature-card" style="text-align:left;">
+                        <i data-feather="refresh-cw"></i>
+                        <h3>90-Day Refresh Tokens</h3>
+                        <p>ECW issues a new <code>refresh_token</code> on every refresh call — the previous one is
+                            immediately invalidated. The submodule surfaces this clearly in <code>TokenResponse</code>
+                            so you always store the latest.</p>
+                    </div>
+                    <div class="feature-card" style="text-align:left;">
+                        <i data-feather="layers"></i>
+                        <h3>Full FHIR R4 Surface</h3>
+                        <p>Read, search, create, update, delete, batch, transaction, bulk export, and capability
+                            statement — all as typed async methods on <code>ECWFHIRService</code>.</p>
+                    </div>
+                    <div class="feature-card" style="text-align:left;">
+                        <i data-feather="file-text"></i>
+                        <h3>Audit Logging</h3>
+                        <p>Every OAuth and FHIR operation is automatically audit-logged by the wrapper services.
+                            Your application code needs no logging boilerplate.</p>
+                    </div>
+                </div>
+
+                <h3>2. Architecture</h3>
+                <p><code>ECWIntegrationService</code> is the single entry point exported by the submodule. Resolve
+                    it through <strong>typedi</strong>'s <code>Container</code> — the DI framework wires up all
+                    internal dependencies automatically.</p>
+
+                <div class="code-block">
+                    <div class="code-header">Call Chain</div>
+                    <pre><code class="language-text">Your code
+       ↓  Container.get(ECWIntegrationService)
+ ECWIntegrationService               ← submodule facade (OAuth + FHIR unified)
+       ↓
+ ECWOAuthService / ECWFHIRService    ← internal service layer
+       ↓
+ eClinicalWorks FHIR API</code></pre>
+                </div>
+
+                <div class="feature-grid" style="margin-top: 16px;">
+                    <div class="feature-card" style="text-align:left;">
+                        <h3 style="margin-top:0; color: var(--color-primary);"><i data-feather="lock"></i>
+                            Resolve the Service</h3>
+                        <div class="code-block" style="margin: 8px 0 0 0;">
+                            <pre><code class="language-javascript">import Container from 'typedi';
+import { ECWIntegrationService } from
+  'healthconnect-ecw-integration-submodule-node-express';
+
+const svc = Container.get(ECWIntegrationService);</code></pre>
                         </div>
                     </div>
-                    <div class="feature-card">
-                        <i data-feather="smartphone"></i>
-                        <h3>2. Standalone Launch</h3>
-                        <p>Patient/Provider flows with mandatory PKCE sequence.</p>
-                        <div class="code-block" style="margin-top: 12px;">
-                            <pre><code class="language-javascript">// 1. Generate URL + PKCE
-const { authUrl, code_verifier } =
-  await ecwOAuth.generateAuthUrl(...);
-
-// 2. Exchange Code
-const tokens = await ecwOAuth.exchangeCodeForToken(
-  config, code, code_verifier, ...
+                    <div class="feature-card" style="text-align:left;">
+                        <h3 style="margin-top:0; color: var(--color-secondary);"><i data-feather="database"></i>
+                            One Instance — All Operations</h3>
+                        <div class="code-block" style="margin: 8px 0 0 0;">
+                            <pre><code class="language-javascript">// svc exposes every OAuth + FHIR method.
+// No separate OAuth / FHIR service needed.
+const tokens = await svc.generateBackendToken(config);
+const patient = await svc.getResource(
+  config, 'Patient', id, tokens.access_token
 );</code></pre>
                         </div>
                     </div>
-                    <div class="feature-card">
-                        <i data-feather="layout"></i>
-                        <h3>3. Embed Launch</h3>
-                        <p>For SMART apps launched internally from within ECW's EHR interface.</p>
-                        <div class="code-block" style="margin-top: 12px;">
-                            <pre><code class="language-javascript">// 1. Process Launch Token
-const { redirect, code_verifier } =
-  await ecwOAuth.handleEmbedLaunch(...);
+                </div>
 
-// 2. Exchange Code
-const tokens = await ecwOAuth.exchangeCodeForToken(...);</code></pre>
+                <div class="ref-divider"></div>
+
+                <!-- ECW CLIENT CLASS -->
+                <h3>3. The <code>ECWClient</code> Class — Bound-Config Pattern</h3>
+                <p>Wrap <code>ECWIntegrationService</code> in a class that captures the config once in its
+                    constructor. Call sites never pass <code>config</code> again — just call the method.</p>
+
+                <div class="code-block">
+                    <div class="code-header">ECWClient.ts</div>
+                    <pre><code class="language-javascript">import Container from 'typedi';
+import { ECWIntegrationService } from
+  'healthconnect-ecw-integration-submodule-node-express';
+import type { ECWConfig, TokenResponse, FHIRResourceResponse, Bundle }
+  from 'healthconnect-ecw-integration-submodule-node-express';
+
+/**
+ * Binds an ECW config to ECWIntegrationService.
+ * Instantiate once per tenant; reuse across the application.
+ */
+export class ECWClient {
+  private readonly svc: ECWIntegrationService;
+
+  constructor(private readonly config: ECWConfig) {
+    this.svc = Container.get(ECWIntegrationService);
+  }
+
+  // ── Auth ────────────────────────────────────────────────────────────
+  getBackendToken(): Promise&lt;TokenResponse&gt; {
+    return this.svc.generateBackendToken(this.config);
+  }
+
+  generateAuthUrl(state: string, redirectUri: string) {
+    return this.svc.generateStandaloneAuthUrl(this.config, state, redirectUri);
+  }
+
+  exchangeCode(code: string, verifier: string, redirect: string, iss?: string) {
+    return this.svc.exchangeCodeForToken(this.config, code, verifier, redirect, iss);
+  }
+
+  handleEmbedLaunch(iss: string, launch: string, redirect: string, state?: string) {
+    return this.svc.handleEmbedLaunch(this.config, iss, launch, redirect, state);
+  }
+
+  refreshToken(token: string, patientId?: string): Promise&lt;TokenResponse&gt; {
+    return this.svc.refreshToken(this.config, token, patientId);
+  }
+
+  introspectToken(token: string) {
+    return this.svc.introspectToken(this.config, token);
+  }
+
+  // ── FHIR ────────────────────────────────────────────────────────────
+  getResource(type: string, id: string, token: string): Promise&lt;FHIRResourceResponse&gt; {
+    return this.svc.getResource(this.config, type, id, token);
+  }
+
+  searchResources(type: string, params: Record&lt;string, string&gt;, token: string): Promise&lt;Bundle&gt; {
+    return this.svc.searchResources(this.config, type, params, token);
+  }
+
+  createResource(type: string, resource: object, token: string): Promise&lt;FHIRResourceResponse&gt; {
+    return this.svc.createResource(this.config, type, resource, token);
+  }
+
+  updateResource(type: string, id: string, resource: object, token: string): Promise&lt;FHIRResourceResponse&gt; {
+    return this.svc.updateResource(this.config, type, id, resource, token);
+  }
+
+  deleteResource(type: string, id: string, token: string): Promise&lt;void&gt; {
+    return this.svc.deleteResource(this.config, type, id, token);
+  }
+
+  batch(bundle: object, token: string): Promise&lt;Bundle&gt; {
+    return this.svc.batch(this.config, bundle, token);
+  }
+
+  transaction(bundle: object, token: string): Promise&lt;Bundle&gt; {
+    return this.svc.transaction(this.config, bundle, token);
+  }
+}</code></pre>
+                </div>
+
+                <h4>Singleton Instantiation &amp; usage</h4>
+                <div class="code-block">
+                    <div class="code-header">ecwSingleton.ts — instantiate once as a singleton</div>
+                    <pre><code class="language-javascript">export const ecw = new ECWClient({
+  client_id:     process.env.ECW_CLIENT_ID!,
+  app_type:      'confidential',
+  fhir_base_url: process.env.ECW_FHIR_BASE_URL!,
+  private_key:   process.env.ECW_PRIVATE_KEY!,
+  kid:           process.env.ECW_KID!,
+  token_url:     process.env.ECW_TOKEN_URL!,
+  auth_scope:    'system/*.rs',
+  integrationId: 'integration-123',
+});</code></pre>
+                </div>
+
+                <div class="feature-grid" style="margin-top: 0;">
+                    <div class="feature-card" style="text-align:left;">
+                        <h3 style="margin-top:0; color: var(--color-primary);"><i data-feather="server"></i>
+                            Backend job</h3>
+                        <div class="code-block" style="margin: 8px 0 0 0;">
+                            <pre><code class="language-javascript">// Clean call site — no config arg
+const { access_token } =
+  await ecw.getBackendToken();
+
+const bundle = await ecw.searchResources(
+  'Appointment',
+  { status: 'booked', _count: '200' },
+  access_token
+);</code></pre>
                         </div>
+                    </div>
+                    <div class="feature-card" style="text-align:left;">
+                        <h3 style="margin-top:0; color: var(--color-secondary);"><i data-feather="layout"></i>
+                            Embed launch handler</h3>
+                        <div class="code-block" style="margin: 8px 0 0 0;">
+                            <pre><code class="language-javascript">// /launch route
+const { redirect, code_verifier } =
+  await ecw.handleEmbedLaunch(
+    req.query.iss,
+    req.query.launch,
+    CALLBACK_URL
+  );
+res.redirect(redirect);
+
+// /callback route
+const tokens = await ecw.exchangeCode(
+  req.query.code, code_verifier,
+  CALLBACK_URL, req.session.iss
+);</code></pre>
+                        </div>
+                    </div>
+                    <div class="feature-card" style="text-align:left;">
+                        <h3 style="margin-top:0; color: var(--color-primary);"><i data-feather="refresh-cw"></i>
+                            Token refresh</h3>
+                        <div class="code-block" style="margin: 8px 0 0 0;">
+                            <pre><code class="language-javascript">// On 401 — refresh and retry
+const newTokens =
+  await ecw.refreshToken(
+    storedRefreshToken,
+    storedPatientId
+  );
+// Always persist the new token
+storeRefreshToken(newTokens.refresh_token);</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="callout tip">
+                    <i data-feather="info" class="callout-icon"></i>
+                    <div class="callout-content">
+                        <strong>Multi-tenant pattern:</strong> For platforms serving multiple ECW practices,
+                        maintain a <code>Map&lt;integrationId, ECWClient&gt;</code> and call
+                        <code>new ECWClient(config)</code> once per tenant at startup. Each tenant's private key
+                        and <code>fhir_base_url</code> differ — the class instance isolates that per tenant.
+                    </div>
+                </div>
+
+                <div class="ref-divider"></div>
+
+                <!-- OAUTH FLOWS -->
+                <h3>4. OAuth Flows — Full Reference</h3>
+
+                <h4>4a — Backend Token (System-to-System)</h4>
+                <p>No user. No browser. Pass your credentials config and get an access token scoped with
+                    <code>system/</code> permissions.
+                </p>
+
+                <div class="code-block">
+                    <div class="code-header">Backend Token — Config + Call</div>
+                    <pre><code class="language-javascript">import { ecw } from './ecwSingleton'; // The pre-configured ECWClient
+
+const tokens = await ecw.getBackendToken();
+
+console.log(tokens.access_token); // Bearer token
+console.log(tokens.expires_in);   // 3600s — cache and reuse
+console.log(tokens.token_type);   // "Bearer"</code></pre>
+                </div>
+
+                <div class="callout tip">
+                    <i data-feather="info" class="callout-icon"></i>
+                    <div class="callout-content">
+                        <strong>Token caching:</strong> Backend tokens expire in 3600 seconds. Cache
+                        <code>access_token</code> and subtract a 30-second buffer before requesting a fresh
+                        one. Re-calling <code>generateBackendToken</code> on every FHIR request is wasteful
+                        and will hit ECW rate limits.
+                    </div>
+                </div>
+
+                <h4>4b — Standalone Launch (Patient / Provider-Facing)</h4>
+                <p>Three-step flow: generate auth URL → user authorizes → exchange code for tokens. PKCE is
+                    automatic.</p>
+
+                <div class="code-block">
+                    <div class="code-header">Step 1 · Generate Authorization URL</div>
+                    <pre><code class="language-javascript">import { ecw } from './ecwSingleton';
+
+const { authUrl, code_verifier } = await ecw.generateAuthUrl(
+  'csrf-state-token',           // random state for CSRF protection
+  'https://yourapp.com/callback'
+);
+
+// IMPORTANT: Persist code_verifier (sessionStorage / server session)
+// before redirecting — you need it in Step 2.
+// Redirect the user to authUrl.</code></pre>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">Step 2 · Exchange Code for Tokens (in your /callback handler)</div>
+                    <pre><code class="language-javascript">// code_verifier retrieved from where you stored it in Step 1
+const tokens = await ecw.exchangeCode(
+  req.query.code,               // authorization_code from ECW redirect
+  code_verifier,                // PKCE verifier from Step 1
+  'https://yourapp.com/callback'
+);
+
+console.log(tokens.access_token);  // use for FHIR calls
+console.log(tokens.refresh_token); // valid for 90 days — store securely
+console.log(tokens.patient);       // Patient ID in context (if launch/patient requested)</code></pre>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">Step 3 · Refresh When Token Expires</div>
+                    <pre><code class="language-javascript">// CRITICAL: A NEW refresh_token is issued — the old one becomes invalid.
+// Always replace your stored refresh_token with newTokens.refresh_token.
+const newTokens = await ecw.refreshToken(
+  tokens.refresh_token,
+  tokens.patient               // required if original token had patient context
+);
+
+// Store newTokens.refresh_token — it replaces the previous one immediately.</code></pre>
+                </div>
+
+                <h4>4c — Embed (EHR) Launch</h4>
+                <p>ECW navigates your <code>/launch</code> URL with <code>?iss=…&amp;launch=…</code>. Pass both
+                    values directly into <code>handleEmbedLaunch</code> — the submodule handles PKCE generation,
+                    SMART endpoint discovery, and authorization URL construction.</p>
+
+                <div class="code-block">
+                    <div class="code-header">Step 1 · Handle /launch — Build Redirect URL</div>
+                    <pre><code class="language-javascript">import { ecw } from './ecwSingleton';
+
+// iss and launch come directly from ECW's query parameters
+const { redirect, code_verifier } = await ecw.handleEmbedLaunch(
+  req.query.iss,               // 'https://fhir.eclinicalworks.com/fhir/r4'
+  req.query.launch,            // opaque launch token from ECW
+  'https://yourapp.com/embed-callback',
+  'state-value'
+);
+
+// Store code_verifier, then redirect the browser to redirect URL.
+res.redirect(redirect);</code></pre>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">Step 2 · Handle /embed-callback — Exchange Code</div>
+                    <pre><code class="language-javascript">const tokens = await ecw.exchangeCode(
+  req.query.code,
+  code_verifier,                                     // from Step 1
+  'https://yourapp.com/embed-callback',
+  'https://fhir.eclinicalworks.com/fhir/r4'         // iss for SMART discovery
+);
+
+console.log(tokens.patient);    // Active patient — injected by EHR
+console.log(tokens.encounter);  // Active encounter — injected by EHR</code></pre>
+                </div>
+
+                <h4>4d — Token Introspection</h4>
+                <div class="code-block">
+                    <div class="code-header">Validate a Token</div>
+                    <pre><code class="language-javascript">import { ecw } from './ecwSingleton';
+
+const result = await ecw.introspectToken(accessToken);
+
+if (result.active) {
+  console.log('Token valid');
+  console.log('Scopes:',    result.scope);
+  console.log('Client ID:', result.client_id);
+} else {
+  // Token expired or revoked — request a new one
+}</code></pre>
+                </div>
+
+                <div class="ref-divider"></div>
+
+                <!-- FHIR OPERATIONS -->
+                <h3>5. FHIR Operations</h3>
+                <p>All FHIR calls share the same signature: <code>(config, …args, accessToken)</code>. Always pass the
+                    access token you received from an OAuth flow.</p>
+
+                <h4>Read &amp; Search</h4>
+                <div class="code-block">
+                    <div class="code-header">Read a Single Resource</div>
+                    <pre><code class="language-javascript">const patient = await ecw.getResource(
+  'Patient',           // resourceType
+  'ecw-patient-id',    // FHIR resource ID
+  accessToken
+);
+
+console.log(patient.resourceType);      // "Patient"
+console.log(patient.name[0].family);    // "Smith"
+console.log(patient.birthDate);         // "1990-01-01"</code></pre>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">Search Resources</div>
+                    <pre><code class="language-javascript">const bundle = await ecw.searchResources(
+  'Patient',
+  { name: 'Smith', birthdate: '1990-01-01' },  // query params object
+  accessToken
+);
+
+console.log(bundle.resourceType);  // "Bundle"
+console.log(bundle.total);         // number of matches
+
+bundle.entry?.forEach(entry => {
+  console.log(entry.resource.name[0].family);
+});</code></pre>
+                </div>
+
+                <h4>Create &amp; Update</h4>
+                <div class="code-block">
+                    <div class="code-header">Create a FHIR Resource</div>
+                    <pre><code class="language-javascript">const observation = {
+  resourceType: 'Observation',
+  status:       'final',
+  code: {
+    coding: [{ system: 'http://loinc.org', code: '8867-4', display: 'Heart rate' }]
+  },
+  valueQuantity: { value: 72, unit: 'beats/min' },
+};
+
+const created = await ecwFHIR.createResource(config, 'Observation', observation, accessToken);
+console.log('Created with ID:', created.id);</code></pre>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">Update a FHIR Resource (Full Replacement — PUT)</div>
+                    <pre><code class="language-javascript">const updated = await ecwFHIR.updateResource(
+  config,
+  'Observation',
+  'existing-obs-id',
+  { ...observation, status: 'amended' },
+  accessToken
+);</code></pre>
+                </div>
+
+                <h4>Batch &amp; Transaction Bundles</h4>
+
+                <div class="feature-grid">
+                    <div class="feature-card" style="text-align:left;">
+                        <h3 style="margin-top:0; color: var(--color-primary);"><i data-feather="list"></i> Batch</h3>
+                        <p>Each entry in the bundle is executed <strong>independently</strong>. One failure does not
+                            block the others. Each entry in the response bundle has its own status code.</p>
+                        <div class="code-block" style="margin: 12px 0 0 0;">
+                            <pre><code class="language-javascript">const result = await ecwFHIR.batch(config, {
+  resourceType: 'Bundle',
+  type: 'batch',
+  entry: [
+    { request: { method: 'GET', url: 'Patient/123' } },
+    { request: { method: 'GET',
+        url: 'Observation?patient=123' } }
+  ]
+}, accessToken);
+// result.entry[0].response.status: "200 OK"
+// result.entry[1].response.status: "200 OK"</code></pre>
+                        </div>
+                    </div>
+                    <div class="feature-card" style="text-align:left;">
+                        <h3 style="margin-top:0; color: var(--color-secondary);"><i data-feather="git-merge"></i>
+                            Transaction</h3>
+                        <p><strong>All-or-nothing.</strong> If any entry fails, the entire bundle is rolled back.
+                            Use for multi-resource writes that must be atomic (e.g., Patient + Observation
+                            together).</p>
+                        <div class="code-block" style="margin: 12px 0 0 0;">
+                            <pre><code class="language-javascript">const result = await ecwFHIR.transaction(config, {
+  resourceType: 'Bundle',
+  type: 'transaction',
+  entry: [
+    { resource: { resourceType: 'Patient',
+        name: [{ family: 'Smith' }] },
+      request: { method: 'POST', url: 'Patient' } },
+    { resource: { resourceType: 'Observation',
+        status: 'final', /* ... */ },
+      request: { method: 'POST',
+        url: 'Observation' } }
+  ]
+}, accessToken);
+// All entries committed, or all rolled back</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ref-divider"></div>
+
+                <!-- CONFIGURATION REFERENCE -->
+                <h3>6. Configuration Reference</h3>
+                <p>Three config shapes — one per launch type. All fields are TypeScript-typed in
+                    <code>src/common/config.ts</code>.
+                </p>
+
+                <table class="ref-table" style="margin-bottom: 32px;">
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Standalone</th>
+                            <th>Backend</th>
+                            <th>Embed Launch</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>client_id</code></td>
+                            <td>✅ Required</td>
+                            <td>✅ Required</td>
+                            <td>✅ Required</td>
+                        </tr>
+                        <tr>
+                            <td><code>app_type</code></td>
+                            <td><code>'public'</code> or <code>'confidential'</code></td>
+                            <td>Must be <code>'confidential'</code></td>
+                            <td><code>'public'</code> or <code>'confidential'</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>fhir_base_url</code></td>
+                            <td>✅ Required</td>
+                            <td>✅ Required</td>
+                            <td>✅ Required</td>
+                        </tr>
+                        <tr>
+                            <td><code>redirect_url</code></td>
+                            <td>✅ Required</td>
+                            <td>—</td>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <td><code>auth_scope</code></td>
+                            <td>✅ Required</td>
+                            <td>Optional</td>
+                            <td>Optional</td>
+                        </tr>
+                        <tr>
+                            <td><code>token_url</code></td>
+                            <td>—</td>
+                            <td>✅ Required</td>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <td><code>private_key</code></td>
+                            <td>Confidential only</td>
+                            <td>✅ Required</td>
+                            <td>Confidential only</td>
+                        </tr>
+                        <tr>
+                            <td><code>kid</code></td>
+                            <td>Confidential only</td>
+                            <td>✅ Required</td>
+                            <td>Confidential only</td>
+                        </tr>
+                        <tr>
+                            <td><code>integrationId</code></td>
+                            <td>Optional</td>
+                            <td>Optional</td>
+                            <td>Optional</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="ref-divider"></div>
+
+                <!-- API SURFACE -->
+                <h3>7. Full API Surface</h3>
+
+                <h4>ECWOAuthService</h4>
+                <table class="ref-table" style="margin-bottom: 32px;">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Returns</th>
+                            <th>Use When</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>generateAuthUrl(config, state, redirectUri)</code></td>
+                            <td><code>{ authUrl, code_verifier }</code></td>
+                            <td>Standalone — Step 1</td>
+                        </tr>
+                        <tr>
+                            <td><code>exchangeCodeForToken(config, code, verifier, redirectUri, iss?)</code></td>
+                            <td><code>TokenResponse</code></td>
+                            <td>Standalone / Embed — final step</td>
+                        </tr>
+                        <tr>
+                            <td><code>refreshToken(config, refreshToken, patientId?, scopes?)</code></td>
+                            <td><code>TokenResponse</code></td>
+                            <td>Renew an expired access token</td>
+                        </tr>
+                        <tr>
+                            <td><code>introspectToken(config, token)</code></td>
+                            <td><code>IntrospectionResponse</code></td>
+                            <td>Validate a token before use</td>
+                        </tr>
+                        <tr>
+                            <td><code>generateBackendToken(config)</code></td>
+                            <td><code>TokenResponse</code></td>
+                            <td>System-to-system auth</td>
+                        </tr>
+                        <tr>
+                            <td><code>handleEmbedLaunch(config, iss, launch, redirectUri, state?)</code></td>
+                            <td><code>{ redirect, code_verifier }</code></td>
+                            <td>Embed — Step 1</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>ECWFHIRService</h4>
+                <table class="ref-table" style="margin-bottom: 32px;">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Returns</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>readResource(config, type, id, token)</code></td>
+                            <td><code>FHIRResourceResponse</code></td>
+                            <td>GET /{type}/{id}</td>
+                        </tr>
+                        <tr>
+                            <td><code>searchResources(config, type, params, token)</code></td>
+                            <td><code>Bundle</code></td>
+                            <td>GET /{type}?{params}</td>
+                        </tr>
+                        <tr>
+                            <td><code>createResource(config, type, resource, token)</code></td>
+                            <td><code>FHIRResourceResponse</code></td>
+                            <td>POST /{type}</td>
+                        </tr>
+                        <tr>
+                            <td><code>updateResource(config, type, id, resource, token)</code></td>
+                            <td><code>FHIRResourceResponse</code></td>
+                            <td>PUT /{type}/{id} — full replacement</td>
+                        </tr>
+                        <tr>
+                            <td><code>deleteResource(config, type, id, token)</code></td>
+                            <td><code>void</code></td>
+                            <td>DELETE /{type}/{id}</td>
+                        </tr>
+                        <tr>
+                            <td><code>batch(config, bundle, token)</code></td>
+                            <td><code>Bundle</code></td>
+                            <td>Independent operations</td>
+                        </tr>
+                        <tr>
+                            <td><code>transaction(config, bundle, token)</code></td>
+                            <td><code>Bundle</code></td>
+                            <td>Atomic all-or-nothing</td>
+                        </tr>
+                        <tr>
+                            <td><code>getCapabilityStatement(config, token)</code></td>
+                            <td><code>CapabilityStatement</code></td>
+                            <td>GET /metadata</td>
+                        </tr>
+                        <tr>
+                            <td><code>bulkDataKickOff(config, groupId, params, token)</code></td>
+                            <td><code>string</code> (status URL)</td>
+                            <td>Start a bulk export job</td>
+                        </tr>
+                        <tr>
+                            <td><code>getBulkDataStatus(config, statusUrl, token)</code></td>
+                            <td><code>BulkStatusResponse</code></td>
+                            <td>Poll until <code>200</code> (complete)</td>
+                        </tr>
+                        <tr>
+                            <td><code>getBulkDataFile(config, fileUrl, token)</code></td>
+                            <td><code>string</code> (NDJSON)</td>
+                            <td>Download completed export file</td>
+                        </tr>
+                        <tr>
+                            <td><code>deleteBulkRequest(config, requestId, token)</code></td>
+                            <td><code>void</code></td>
+                            <td>Cancel an in-progress export</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="ref-divider"></div>
+
+                <!-- ERROR HANDLING -->
+                <h3>8. Error Handling</h3>
+                <p>Both services throw a <code>CustomError</code> with a <code>status</code> code and descriptive
+                    <code>message</code> on any failure. Wrap all calls in try/catch.
+                </p>
+
+                <div class="code-block">
+                    <div class="code-header">Error Handling Pattern</div>
+                    <pre><code class="language-javascript">try {
+  const patient = await ecwFHIR.readResource(config, 'Patient', 'bad-id', token);
+} catch (error) {
+  // error.status:  404
+  // error.message: "Resource not found: Patient/bad-id"
+
+  if (error.status === 401) {
+    // Token expired — refresh and retry
+    const newTokens = await ecwOAuth.refreshToken(config, storedRefreshToken);
+  }
+}</code></pre>
+                </div>
+
+                <table class="ref-table">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Meaning</th>
+                            <th>Common Cause</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>400</code></td>
+                            <td>Bad Request</td>
+                            <td>Invalid search params, missing PKCE, malformed resource</td>
+                        </tr>
+                        <tr>
+                            <td><code>401</code></td>
+                            <td>Unauthorized</td>
+                            <td>Access token expired or revoked — call <code>refreshToken</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>403</code></td>
+                            <td>Forbidden</td>
+                            <td>Scope not granted — check your <code>auth_scope</code> config</td>
+                        </tr>
+                        <tr>
+                            <td><code>404</code></td>
+                            <td>Not Found</td>
+                            <td>Resource ID doesn't exist on this ECW instance</td>
+                        </tr>
+                        <tr>
+                            <td><code>422</code></td>
+                            <td>Unprocessable</td>
+                            <td>FHIR resource failed validation — check required fields</td>
+                        </tr>
+                        <tr>
+                            <td><code>500</code></td>
+                            <td>Server Error</td>
+                            <td>ECW API or submodule internal failure</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout warning" style="margin-top: 32px;">
+                    <i data-feather="alert-triangle" class="callout-icon"></i>
+                    <div class="callout-content">
+                        <strong>Security checklist:</strong> Never commit <code>private_key</code> or
+                        <code>client_secret</code> to git. Load them from environment variables or a secrets
+                        manager (AWS Secrets Manager, Vault). Token exchange must always happen on the server —
+                        the submodule's <code>/workflow/auth/{integrationId}/callback</code> handles this.
+                        Always store the latest <code>refresh_token</code> — the previous one is invalidated
+                        the moment ECW issues a new one.
                     </div>
                 </div>
 
@@ -2312,7 +3274,10 @@ const tokens = await ecwOAuth.exchangeCodeForToken(...);</code></pre>
                 primaryBorderColor: '#818cf8',
                 lineColor: '#645cbe',
                 secondaryColor: '#f8fafc',
-                tertiaryColor: '#fff'
+                tertiaryColor: '#fff',
+                noteBkgColor: 'rgba(56,184,179,0.08)',
+                noteBorderColor: '#38b8b3',
+                noteTextColor: '#334155'
             }
         });
     </script>
