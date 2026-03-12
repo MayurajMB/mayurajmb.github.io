@@ -72,6 +72,16 @@ h1 {
     margin-top: 0;
 }
 
+h1 svg {
+    width: 2rem;
+    height: 2rem;
+    color: var(--color-primary);
+    vertical-align: middle;
+    margin-right: 12px;
+    margin-bottom: 4px;
+    flex-shrink: 0;
+}
+
 h2 {
     font-size: 1.75rem;
     border-bottom: 1px solid var(--color-border);

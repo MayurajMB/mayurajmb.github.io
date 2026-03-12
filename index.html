@@ -78,7 +78,7 @@
 
             <!-- SECTION 1: INTRODUCTION -->
             <section id="section-1" class="page-section active">
-                <h1>📖 1. Introduction & Context</h1>
+                <h1><i data-feather="book-open"></i> 1. Introduction & Context</h1>
                 <p class="lead">From Basic FHIR APIs to Secure, Interoperable Health Apps — Why SMART on FHIR Exists and
                     Why It Matters for Every Healthcare Developer.</p>
 
@@ -206,7 +206,7 @@
 
             <!-- SECTION 2: WHAT IS SMART? -->
             <section id="section-2" class="page-section">
-                <h1>🧠 2. What is SMART on FHIR?</h1>
+                <h1><i data-feather="help-circle"></i> 2. What is SMART on FHIR?</h1>
                 <p class="lead"><strong>S</strong>ubstitutable <strong>M</strong>edical <strong>A</strong>pplications,
                     <strong>R</strong>eusable <strong>T</strong>echnologies — coined by Harvard's Dr. Ken Mandl in 2010.
                 </p>
@@ -398,7 +398,7 @@
 
             <!-- SECTION 3: CORE STANDARDS -->
             <section id="section-3" class="page-section">
-                <h1>⚙️ 3. Core Standards Deep Dive</h1>
+                <h1><i data-feather="layers"></i> 3. Core Standards Deep Dive</h1>
                 <p class="lead">Understanding the mechanics of OAuth 2.0, OpenID Connect (OIDC), and JSON Web Tokens
                     (JWTs) in the context of healthcare.</p>
 
@@ -685,7 +685,7 @@
 
             <!-- SECTION 4: CONFIG & DISCOVERY -->
             <section id="section-4" class="page-section">
-                <h1>🔍 4. SMART Configuration & Discovery</h1>
+                <h1><i data-feather="compass"></i> 4. SMART Configuration & Discovery</h1>
                 <p class="lead">How applications dynamically discover an EHR's specific security endpoints without
                     hardcoding URLs.</p>
 
@@ -825,7 +825,7 @@
             <!-- SECTION 5: STANDALONE LAUNCH -->
             <!-- SECTION 10: SMART LAUNCH OVERVIEW -->
             <section id="section-10" class="page-section">
-                <h1>🚀 6. SMART Launch — Overview</h1>
+                <h1><i data-feather="map"></i> 6. SMART Launch — Overview</h1>
                 <p class="lead">Before choosing a launch pattern, you need to answer two questions: <strong>Is there a
                         human in the loop?</strong> and <strong>Can your app keep a secret?</strong> The answers
                     determine everything.</p>
@@ -1081,7 +1081,7 @@
 
             <!-- SECTION 5: STANDALONE LAUNCH -->
             <section id="section-5" class="page-section">
-                <h1>📱 7. Standalone Launch</h1>
+                <h1><i data-feather="smartphone"></i> 7. Standalone Launch</h1>
                 <p class="lead">The user initiates the app <em>outside</em> the EHR — from a phone home screen, a
                     browser bookmark, or a patient portal link. The app starts cold with no context and must acquire
                     it via OAuth.</p>
@@ -1101,19 +1101,18 @@
                         participant Auth as EHR Auth Server
                         participant FHIR as EHR FHIR API
 
-                        A->>Auth: GET [FHIR_BASE]/.well-known/smart-configuration
+                        A->>Auth: GET FHIR_BASE/.well-known/smart-configuration
                         Auth-->>A: authorization_endpoint, token_endpoint
-                        A->>A: Generate code_verifier (random, 43-128 chars)
+                        A->>A: Generate code_verifier (random 43-128 chars)
                         A->>A: code_challenge = BASE64URL(SHA256(verifier))
-                        A->>U: Redirect →
-                        authorization_endpoint?response_type=code&client_id=...&code_challenge=...&scope=launch/patient+patient/*.rs+openid+fhirUser
-                        U->>Auth: User logs in & grants consent
-                        Auth->>A: Redirect → redirect_uri?code=abc123&state=xyz
+                        A->>U: Redirect to authorization_endpoint with code_challenge, scope, client_id
+                        U->>Auth: User logs in and grants consent
+                        Auth->>A: Redirect to redirect_uri with code and state
                         A->>A: Validate state matches stored value
-                        A->>Auth: POST token_endpoint (code + code_verifier)
-                        Auth->>Auth: SHA256(code_verifier) == stored code_challenge ✓
+                        A->>Auth: POST token_endpoint — code + code_verifier
+                        Auth->>Auth: SHA256(code_verifier) matches stored challenge
                         Auth-->>A: access_token, id_token, patient, expires_in
-                        A->>FHIR: GET /Patient/{patient} (Authorization: Bearer token)
+                        A->>FHIR: GET /Patient/{patient} Bearer token
                         FHIR-->>A: Patient FHIR resource
                     </div>
                 </div>
@@ -1264,7 +1263,7 @@ const observations = await fetch(
 
             <!-- SECTION 6: EMBED LAUNCH -->
             <section id="section-6" class="page-section">
-                <h1>🏥 8. Embed Launch (EHR Launch)</h1>
+                <h1><i data-feather="layout"></i> 8. Embed Launch (EHR Launch)</h1>
                 <p class="lead">The EHR opens your app from within its own interface. The clinician never logs in
                     twice — the active patient and encounter are injected automatically into your token response.</p>
 
@@ -1428,12 +1427,11 @@ const observations = await fetch(
                         participant FHIR as EHR FHIR API
 
                         Doc->>EHR: Opens patient chart, clicks MAIA link
-                        EHR->>A: GET /launch?iss=https://fhir.ecw.org/r4/ABC&launch=opaque-xyz
+                        EHR->>A: GET /launch with iss and launch token
                         A->>Auth: GET iss/.well-known/smart-configuration
                         Auth-->>A: authorization_endpoint, token_endpoint
-                        A->>A: Generate PKCE verifier + challenge, store state
-                        A->>Auth: GET
-                        /authorize?launch=opaque-xyz&scope=launch+patient/*.rs+openid+fhirUser&code_challenge=...
+                        A->>A: Generate PKCE verifier and challenge, store state
+                        A->>Auth: GET /authorize with launch token, scope, code_challenge
                         Note over Auth: Clinician already has EHR session — SSO, no login page shown
                         Auth->>Auth: Unwrap launch token → patient + encounter resolved
                         Auth->>A: Redirect /callback?code=abc&state=xyz
@@ -1705,7 +1703,7 @@ function App() {
 
             <!-- SECTION 7: BACKEND LAUNCH -->
             <section id="section-7" class="page-section">
-                <h1>⚙️ 9. Backend Launch (System-to-System)</h1>
+                <h1><i data-feather="server"></i> 9. Backend Launch (System-to-System)</h1>
                 <p class="lead">No user. No browser. No consent screen. A server daemon authenticates directly to the
                     EHR using asymmetric cryptography — signing a JWT with its private key as proof of identity.</p>
 
@@ -1723,7 +1721,7 @@ function App() {
                         participant Auth as EHR Token Endpoint
                         participant FHIR as EHR FHIR API
 
-                        Note over App: Cron job / event triggers
+                        Note over App,FHIR: Cron job / event triggers
                         App->>App: 1. Build JWT assertion payload (iss, sub, aud, exp, jti)
                         App->>App: 2. Sign JWT with RSA-384 private key
                         App->>Auth: 3. POST /token — grant_type=client_credentials, client_assertion=signedJWT
@@ -2044,7 +2042,7 @@ async function syncAppointments() {
 
             <!-- SECTION 8: SMART SCOPES -->
             <section id="section-8" class="page-section">
-                <h1>🛡️ 5. SMART Scopes & Permissions</h1>
+                <h1><i data-feather="shield"></i> 5. SMART Scopes & Permissions</h1>
                 <p class="lead">Every scope is a contract — it specifies exactly <em>whose</em> data, <em>which</em>
                     resource, and <em>what</em> operations your app is permitted to perform.</p>
 
