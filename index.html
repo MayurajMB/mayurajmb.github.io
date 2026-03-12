@@ -11,10 +11,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Feather Icons -->
     <script src="https://unpkg.com/feather-icons"></script>
+    <!-- Prism.js for Syntax Highlighting (Dark Theme) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
+
+    <!-- Reading Progress Bar -->
+    <div id="progress-bar"></div>
 
     <!-- Mobile Header -->
     <div class="mobile-header">
@@ -182,10 +187,10 @@
                     </div>
                 </div>
 
-                <div class="page-navigation" style="margin-top: 48px;">
-                    <div></div>
-                    <a href="#section-2" class="nav-btn next">Next: What is SMART? <i
-                            data-feather="arrow-right"></i></a>
+                <div class="page-navigation">
+                    <div class="nav-spacer"></div>
+                    <button class="nav-btn next" data-target="#section-2">Next: What is SMART? <i
+                            data-feather="arrow-right"></i></button>
                 </div>
             </section>
 
@@ -241,47 +246,50 @@
 
                 <div class="ref-divider"></div>
 
-                <h3>2. The Web Analogy: HTTP & HTTPS</h3>
-                <p>For developers, the most familiar analogy is the evolution from HTTP to HTTPS on the web.</p>
+                <h3>2. The Web Analogy: HTML & HTTPS</h3>
+                <p>For developers, the most familiar analogy — <strong>HTML is the data format, HTTPS is the secure
+                        protocol that protects it.</strong></p>
                 <div class="feature-grid">
                     <div class="feature-card" style="text-align: left;">
-                        <i data-feather="file-text"></i>
-                        <h3>FHIR = HTTP</h3>
-                        <p>HTTP defines how web browsers and servers communicate — the request/response format, status
-                            codes, headers, and URL structure. It is purely about <strong>content and
-                                transport</strong>, not about security.</p>
-                        <p>Similarly, <strong>FHIR defines the clinical data request/response format</strong> —
-                            <code>GET /Patient/{id}</code>, JSON resources, search parameters. It's the data protocol,
-                            not the security layer.
-                        </p>
+                        <i data-feather="code"></i>
+                        <h3>FHIR = HTML</h3>
+                        <p><strong>HTML is the data format</strong> of the web. It defines the structure and meaning of
+                            content — headings, paragraphs, links, images. A browser can render HTML, a scraper can read
+                            it, but HTML itself has zero security — anyone can copy or intercept it.</p>
+                        <p>Similarly, <strong>FHIR is the data format of healthcare</strong>. It defines the structure
+                            and meaning of clinical data — Patient resources, Observation JSON, FHIR search parameters.
+                            Any app can call a FHIR endpoint, but FHIR itself has no authentication or authorization
+                            built in.</p>
                         <ul class="benefits-list" style="padding: 0; margin-top: 8px;">
-                            <li><i data-feather="check" style="color: #38b8b3;"></i> Defines the data format & endpoint
-                                structure.</li>
-                            <li><i data-feather="check" style="color: #38b8b3;"></i> Works out of the box — just make a
+                            <li><i data-feather="check" style="color: #38b8b3;"></i> Defines structure & meaning of
+                                data.</li>
+                            <li><i data-feather="check" style="color: #38b8b3;"></i> Universally readable — just make a
                                 REST call.</li>
-                            <li><i data-feather="x" style="color: #ef4444;"></i> No encryption, no identity, no access
+                            <li><i data-feather="x" style="color: #ef4444;"></i> No security, no identity, no access
                                 control.</li>
                         </ul>
                     </div>
                     <div class="feature-card" style="text-align: left;">
                         <i data-feather="lock"></i>
                         <h3>SMART on FHIR = HTTPS</h3>
-                        <p>HTTPS is HTTP with <strong>TLS encryption layered on top</strong>. The web page content
-                            (HTML) didn't change. The URL structure didn't change. But now every request is encrypted,
-                            authenticated, and tamper-proof.</p>
-                        <p>Similarly, <strong>SMART on FHIR is FHIR with OAuth 2.0 + OIDC layered on top</strong>. The
-                            FHIR resources didn't change. The endpoints didn't change. But now every request is
-                            authorized, the user is authenticated, and data is protected.</p>
+                        <p><strong>HTTPS wraps HTTP + HTML in TLS encryption</strong>. The HTML content didn't change.
+                            The URL structure didn't change. But now the entire communication is encrypted, the server
+                            identity is verified, and the data stream is tamper-proof.</p>
+                        <p>Similarly, <strong>SMART on FHIR wraps FHIR in OAuth 2.0 + OIDC</strong>. The FHIR resources
+                            didn't change. The endpoints didn't change. But now every request requires authorization,
+                            the user's identity is proven, and granular data access is enforced.</p>
                         <ul class="benefits-list" style="padding: 0; margin-top: 8px;">
-                            <li><i data-feather="check" style="color: #7234ae;"></i> Same FHIR endpoints — zero data
-                                model changes.</li>
-                            <li><i data-feather="check" style="color: #7234ae;"></i> Adds encryption + identity proof on
+                            <li><i data-feather="check" style="color: #7234ae;"></i> Same FHIR data format — nothing
+                                changes.</li>
+                            <li><i data-feather="check" style="color: #7234ae;"></i> Adds identity + authorization on
                                 top.</li>
-                            <li><i data-feather="check" style="color: #7234ae;"></i> Without SMART, FHIR is like HTTP —
-                                open to abuse.</li>
+                            <li><i data-feather="check" style="color: #7234ae;"></i> Without SMART, FHIR is like plain
+                                HTML — unprotected.</li>
                         </ul>
                     </div>
                 </div>
+
+                <div class="ref-divider"></div>
 
                 <div class="ref-divider"></div>
 
@@ -340,7 +348,7 @@
                     the next.</p>
                 <div class="feature-grid">
                     <div class="feature-card">
-                        <h3 style="color: #7234ae;"><i data-feather="file-text"></i> FHIR (HL7 R4)</h3>
+                        <h3 style="color: var(--color-secondary);"><i data-feather="file-text"></i> FHIR (HL7 R4)</h3>
                         <p><em>The Language of Clinical Data</em></p>
                         <ul class="benefits-list" style="text-align: left; padding: 0;">
                             <li><i data-feather="file-text"></i> Defines JSON schemas (Patient, Obs).</li>
@@ -349,7 +357,7 @@
                         </ul>
                     </div>
                     <div class="feature-card">
-                        <h3 style="color: #38b8b3;"><i data-feather="key"></i> OAuth 2.0 (RFC 6749)</h3>
+                        <h3 style="color: var(--color-primary);"><i data-feather="key"></i> OAuth 2.0 (RFC 6749)</h3>
                         <p><em>The Authorization Layer</em></p>
                         <ul class="benefits-list" style="text-align: left; padding: 0;">
                             <li><i data-feather="unlock"></i> Handles asking user for explicit consent.</li>
@@ -358,7 +366,8 @@
                         </ul>
                     </div>
                     <div class="feature-card">
-                        <h3 style="color: #ef4444;"><i data-feather="user-check"></i> OpenID Connect (OIDC)</h3>
+                        <h3 style="color: var(--color-danger);"><i data-feather="user-check"></i> OpenID Connect (OIDC)
+                        </h3>
                         <p><em>The Identity Layer</em></p>
                         <ul class="benefits-list" style="text-align: left; padding: 0;">
                             <li><i data-feather="user"></i> Proves who the logged-in user is.</li>
@@ -369,10 +378,11 @@
                     </div>
                 </div>
 
-                <div class="page-navigation" style="margin-top: 48px;">
-                    <a href="#section-1" class="nav-btn prev"><i data-feather="arrow-left"></i> Prev: Intro</a>
-                    <a href="#section-3" class="nav-btn next">Next: Core Standards <i
-                            data-feather="arrow-right"></i></a>
+                <div class="page-navigation">
+                    <button class="nav-btn prev" data-target="#section-1"><i data-feather="arrow-left"></i> Prev:
+                        Intro</button>
+                    <button class="nav-btn next" data-target="#section-3">Next: Core Standards <i
+                            data-feather="arrow-right"></i></button>
                 </div>
             </section>
 
@@ -405,7 +415,7 @@
                             service.</p>
                     </div>
                 </div>
-                <div class="feature-grid" style="margin-top: -16px; margin-bottom: 32px;">
+                <div class="feature-grid" style="margin-bottom: 32px;">
                     <div class="feature-card">
                         <i data-feather="shield"></i>
                         <h3>Authorization Server</h3>
@@ -484,15 +494,17 @@
 
                 <div class="feature-grid">
                     <div class="feature-card" style="text-align: left;">
-                        <h3 style="color: #ef4444;">1. The Header (JOSE Header)</h3>
+                        <h3 style="color: var(--color-danger);">1. The Header (JOSE Header)</h3>
                         <p>Tells the receiving server <em>how</em> to verify this token — which algorithm was used to
                             sign it, and which specific public key to look up from the JWKS endpoint.</p>
-                        <pre
-                            style="margin-top: 12px; font-size: 0.78em; padding: 12px; background-color: #fee2e2; border: 1px solid #fca5a5; color: #7f1d1d; border-radius: 8px; white-space: pre-wrap; font-family: monospace; line-height: 1.5; text-align: left;">{
+                        <div class="code-block" style="margin-top: 12px; margin-bottom: 8px;">
+                            <div class="code-header">JWT Header</div>
+                            <pre><code class="language-json">{
   "x5t#S256": "A3kPz-XKstu9w7B5iF8vxn58WiPqZGtu8EJH4VboZit",
   "kid":      "jwt",
   "alg":      "RS256"
-}</pre>
+}</code></pre>
+                        </div>
                         <table style="width:100%; font-size: 0.78em; margin-top:10px; border-collapse: collapse;">
                             <tr style="border-bottom: 1px solid #fca5a5;">
                                 <td style="padding:4px 6px; font-weight:600; color:#b91c1c; width:35%;">x5t#S256</td>
@@ -513,11 +525,12 @@
                     </div>
 
                     <div class="feature-card" style="text-align: left;">
-                        <h3 style="color: #7234ae;">2. The Payload (Claims)</h3>
+                        <h3 style="color: var(--color-secondary);">2. The Payload (Claims)</h3>
                         <p>Contains all identity and authorization information issued by ECW after a successful SMART
                             EHR launch. This is the decoded payload of a real <code>id_token</code>.</p>
-                        <pre
-                            style="margin-top: 12px; font-size: 0.72em; padding: 12px; background-color: #f3e8ff; border: 1px solid #d8b4fe; color: #581c87; border-radius: 8px; white-space: pre-wrap; font-family: monospace; line-height: 1.5; text-align: left;">{
+                        <div class="code-block" style="margin-top: 12px; margin-bottom: 8px;">
+                            <div class="code-header">JWT Payload (ECW id_token)</div>
+                            <pre><code class="language-json">{
   "sub":         "c5b11811-45b8-xxxx-xxxx-00505684ce1b_68976711-xxxx",
   "iss":         "https://staging-fhir.ecwcloud.com/fhir/r4/FFBJCD",
   "aud":         ["jlIyWPTcKz175xxxxxxxxxxxxxxxxx", "https://staging-fhir.ecwcloud.com/fhir/r4/FFBJCD"],
@@ -530,7 +543,8 @@
   "exp":         1773042964,
   "nbf":         1773042664,
   "jti":         "a0807002-xxxx-4960-xxxx-11a37a19a9c9"
-}</pre>
+}</code></pre>
+                        </div>
                         <table style="width:100%; font-size: 0.73em; margin-top:10px; border-collapse: collapse;">
                             <tr style="border-bottom: 1px solid #d8b4fe;">
                                 <td style="padding:4px 6px; font-weight:600; color:#7234ae; width:30%;">sub</td>
@@ -576,12 +590,14 @@
                         <p>To create the signature part, you take the encoded header, the encoded payload, a secret, the
                             algorithm specified in the header, and sign that.</p>
                         <p>For example, if using HMAC SHA256:</p>
-                        <pre
-                            style="margin-top: 12px; font-size: 0.78em; padding: 12px; background-color: #eff6ff; border: 1px solid #93c5fd; color: #1e3a8a; border-radius: 8px; white-space: pre-wrap; font-family: monospace; line-height: 1.5; text-align: left;">HMACSHA256(
+                        <div class="code-block" style="margin-top: 12px;">
+                            <div class="code-header">HMAC-SHA256 Signature Formula</div>
+                            <pre><code class="language-javascript">HMACSHA256(
   base64UrlEncode(header) + "." +
   base64UrlEncode(payload),
   secret
-)</pre>
+)</code></pre>
+                        </div>
                         <p style="margin-top: 12px;"><strong>This guarantees the token hasn't been altered by a
                                 Man-in-the-Middle.</strong></p>
                     </div>
@@ -595,14 +611,14 @@
 
                 <div class="code-block">
                     <div class="code-header">Example Decoded SMART ID Token Payload</div>
-                    <code>{
+                    <pre><code class="language-json">{
   "iss": "https://ehr.hospital.org/oauth2",
   "sub": "Practitioner/12345",
   "aud": "my-app-client-id",
   "iat": 1700000000,
   "exp": 1700003600,
   "fhirUser": "https://ehr.hospital.org/fhir/Practitioner/12345"
-}</code>
+}</code></pre>
                 </div>
 
                 <div class="feature-grid" style="margin-top: 24px;">
@@ -650,9 +666,10 @@
                 </div>
 
                 <div class="page-navigation" style="margin-top: 48px;">
-                    <a href="#section-2" class="nav-btn prev"><i data-feather="arrow-left"></i> Prev: What is SMART?</a>
-                    <a href="#section-4" class="nav-btn next">Next: Config & Discovery <i
-                            data-feather="arrow-right"></i></a>
+                    <button class="nav-btn prev" data-target="#section-2"><i data-feather="arrow-left"></i> Prev: What
+                        is SMART?</button>
+                    <button class="nav-btn next" data-target="#section-4">Next: Config &amp; Discovery <i
+                            data-feather="arrow-right"></i></button>
                 </div>
             </section>
 
@@ -679,39 +696,78 @@
                     supports, where security endpoints live, and what authentication methods are required.</p>
 
                 <div class="code-block">
-                    <div class="code-header">Example SMART Config Response</div>
-                    <code>{
-  "authorization_endpoint": "https://fhir.epic.com/interconnect-fhir-oauth/oauth2/authorize", 
-  "token_endpoint": "https://fhir.epic.com/interconnect-fhir-oauth/oauth2/token",             
-  "token_endpoint_auth_methods_supported": [         
-    "client_secret_basic",
-    "private_key_jwt"
+                    <div class="code-header">Example Epic SMART Config Response · GET
+                        [FHIR_BASE]/.well-known/smart-configuration</div>
+                    <pre><code class="language-json">{
+  "authorization_endpoint": "https://fhir.epic.com/interconnect-fhir-oauth/oauth2/authorize",
+  "token_endpoint": "https://fhir.epic.com/interconnect-fhir-oauth/oauth2/token",
+  "token_endpoint_auth_methods_supported": [
+    "client_secret_post", "client_secret_basic", "private_key_jwt"
   ],
-  "capabilities": [ 
-    "launch-ehr", 
-    "launch-standalone",
-    "client-public",
-    "client-confidential-asymmetric"
+  "scopes_supported": [ "epic.scanning.dmsusername", "fhirUser", "launch", "openid", "profile" ],
+  "response_types_supported": [ "code" ],
+  "capabilities": [
+    "launch-ehr", "launch-standalone", "client-public", "client-confidential-symmetric",
+    "client-confidential-asymmetric", "context-banner", "context-style", "context-ehr-patient",
+    "context-ehr-encounter", "context-standalone-patient", "permission-offline",
+    "permission-patient", "permission-user", "permission-v1", "permission-v2", "sso-openid-connect",
+    "authorize-post"
   ],
-  "scopes_supported": ["patient/*.read", "offline_access", "openid", "fhirUser"]
-}</code>
+  "grant_types_supported": [
+    "authorization_code", "refresh_token", "client_credentials",
+    "urn:ietf:params:oauth:grant-type:jwt-bearer", "urn:ietf:params:oauth:grant-type:token-exchange"
+  ],
+  "code_challenge_methods_supported": [ "S256" ],
+  "issuer": "https://fhir.epic.com/interconnect-fhir-oauth/oauth2",
+  "jwks_uri": "https://fhir.epic.com/interconnect-fhir-oauth/api/epic/2019/Security/Open/PublicKeys/530027/OIDC"
+}</code></pre>
                 </div>
 
                 <div class="feature-grid" style="margin-top: 24px;">
-                    <div class="feature-card">
-                        <h3><i data-feather="link"></i> Endpoints</h3>
-                        <p>Provides the exact URLs your app must redirect users to (<code>authorization_endpoint</code>)
-                            and where it must POST to get tokens (<code>token_endpoint</code>).</p>
+                    <div class="feature-card" style="text-align: left;">
+                        <h3><i data-feather="link"></i> The Core Endpoints</h3>
+                        <p>How do we get these URLs? Your app must fetch them dynamically at runtime from the
+                            <code>/.well-known/smart-configuration</code> discovery URL.
+                        </p>
+                        <ul class="benefits-list" style="padding: 0; margin-top: 8px;">
+                            <li style="margin-bottom: 8px; display: block;">
+                                <strong><code>authorization_endpoint</code></strong>: Where you redirect the user's
+                                browser for login and consent (Starts the flow).
+                            </li>
+                            <li style="margin-bottom: 8px; display: block;">
+                                <strong><code>token_endpoint</code></strong>: The backend API where your server
+                                exchanges the Auth Code for actual Access/ID tokens.
+                            </li>
+                        </ul>
                     </div>
-                    <div class="feature-card">
-                        <h3><i data-feather="check-circle"></i> Auth Methods</h3>
-                        <p>Tells your app how it must authenticate itself. E.g., <code>private_key_jwt</code> means the
-                            EHR requires asymmetric RS384 signatures for backend launches.</p>
+                    <div class="feature-card" style="text-align: left;">
+                        <h3><i data-feather="key"></i> JWT Validation (JWKS)</h3>
+                        <p>How do you verify the token you receive isn't forged?</p>
+                        <ul class="benefits-list" style="padding: 0; margin-top: 8px;">
+                            <li style="margin-bottom: 8px; display: block;"><strong>1. Fetch Keys:</strong> Make a GET
+                                request to the <code>jwks_uri</code> provided in this config. It returns public keys.
+                            </li>
+                            <li style="margin-bottom: 8px; display: block;"><strong>2. Match <code>kid</code>:</strong>
+                                Look at the <code>kid</code> in your JWT header, and find the matching key in the JWKS
+                                response.</li>
+                            <li style="margin-bottom: 8px; display: block;"><strong>3. Verify:</strong> Use that public
+                                key alongside the `RS256` algorithm to verify the JWT signature mathematically.</li>
+                        </ul>
                     </div>
-                    <div class="feature-card">
-                        <h3><i data-feather="sliders"></i> Capabilities</h3>
-                        <p>An array of feature flags. If an EHR supports <code>launch-ehr</code>, it means it can embed
-                            your app natively in the clinician workspace.</p>
+                    <div class="feature-card" style="text-align: left;">
+                        <h3><i data-feather="sliders"></i> Security Parameters</h3>
+                        <ul class="benefits-list" style="padding: 0; margin-top: 8px;">
+                            <li style="margin-bottom: 8px; display: block;">
+                                <strong><code>token_endpoint_auth_methods</code></strong>: Tells you how to
+                                authenticate. Epic allows <code>private_key_jwt</code> (asymmetric) for backend apps.
+                            </li>
+                            <li style="margin-bottom: 8px; display: block;">
+                                <strong><code>code_challenge_methods</code></strong>: Indicates support for
+                                <code>S256</code> (PKCE) which secures mobile/SPA apps.
+                            </li>
+                            <li style="margin-bottom: 8px; display: block;"><strong><code>issuer</code></strong>: Must
+                                exactly match the <code>iss</code> claim inside the returned JWT!</li>
+                        </ul>
                     </div>
                 </div>
 
@@ -748,9 +804,11 @@
                     </tbody>
                 </table>
 
-                <div class="page-navigation" style="margin-top: 48px;">
-                    <a href="#section-3" class="nav-btn prev"><i data-feather="arrow-left"></i> Prev: Core Standards</a>
-                    <a href="#section-8" class="nav-btn next">Next: SMART Scopes <i data-feather="arrow-right"></i></a>
+                <div class="page-navigation">
+                    <button class="nav-btn prev" data-target="#section-3"><i data-feather="arrow-left"></i> Prev: Core
+                        Standards</button>
+                    <button class="nav-btn next" data-target="#section-8">Next: SMART Scopes <i
+                            data-feather="arrow-right"></i></button>
                 </div>
             </section>
 
@@ -768,8 +826,7 @@
                 <h3>2. Sequence Diagram: Auth Code Flow with PKCE</h3>
                 <p>Because the app lives on the open public internet, it uses the Authorization Code flow enhanced with
                     PKCE.</p>
-                <div
-                    style="background: white; padding: 24px; border-radius: 12px; margin-bottom: 32px; border: 1px solid var(--color-border); overflow-x: auto;">
+                <div class="diagram-container">
                     <div class="mermaid">
                         sequenceDiagram
                         participant U as User (Patient)
@@ -806,11 +863,13 @@
                             over the URL because mathematicians cannot reverse a secure hash.</p>
                     </div>
                     <div class="feature-card"
-                        style="text-align: left; background: rgba(239, 68, 68, 0.05); border-color: rgba(239, 68, 68, 0.2);">
-                        <h3 style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px; color: #b91c1c;">
+                        style="text-align: left; background: rgba(239, 68, 68, 0.04); border-color: rgba(239, 68, 68, 0.2);">
+                        <h3
+                            style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px; color: var(--color-danger);">
                             <i data-feather="alert-triangle"></i> 2. The Interception Risk
                         </h3>
-                        <p style="margin: 0; color: #991b1b;">If a malicious app on the user's phone intercepts the URI
+                        <p style="margin: 0; color: #991b1b;">If a malicious app on the user's phone
+                            intercepts the URI
                             redirect containing the Auth Code, it will try to instantly trade that code for an Access
                             Token at the <code>/token</code> endpoint.</p>
                     </div>
@@ -823,9 +882,11 @@
                     </div>
                 </div>
 
-                <div class="page-navigation" style="margin-top: 48px;">
-                    <a href="#section-8" class="nav-btn prev"><i data-feather="arrow-left"></i> Prev: SMART Scopes</a>
-                    <a href="#section-6" class="nav-btn next">Next: Embed Launch <i data-feather="arrow-right"></i></a>
+                <div class="page-navigation">
+                    <button class="nav-btn prev" data-target="#section-8"><i data-feather="arrow-left"></i> Prev: SMART
+                        Scopes</button>
+                    <button class="nav-btn next" data-target="#section-6">Next: Embed Launch <i
+                            data-feather="arrow-right"></i></button>
                 </div>
             </section>
 
@@ -843,8 +904,7 @@
                     inheritance of active context is the hallmark of an Embed Launch.</p>
 
                 <h3>2. Sequence Diagram: The EHR Launch Flow</h3>
-                <div
-                    style="background: white; padding: 24px; border-radius: 12px; margin-bottom: 32px; border: 1px solid var(--color-border); overflow-x: auto;">
+                <div class="diagram-container">
                     <div class="mermaid">
                         sequenceDiagram
                         participant Doc as Clinician
@@ -874,15 +934,15 @@
 
                 <div class="code-block" style="margin-top: 16px;">
                     <div class="code-header">Example Token Response Endpoint JSON</div>
-                    <code>{
+                    <pre><code class="language-json">{
   "access_token": "eyJhbGciOiJSUzI1NiIs...",
   "token_type": "Bearer",
   "expires_in": 3600,
   "scope": "patient/*.read openid fhirUser",
-  "patient": "12b3c4d5",        // App immediately knows the active patient!
-  "encounter": "987654321",     // App knows the active visit/encounter
-  "smart_style_url": "https://..." 
-}</code>
+  "patient": "12b3c4d5",
+  "encounter": "987654321",
+  "smart_style_url": "https://..."
+}</code></pre>
                 </div>
 
                 <div class="callout tip">
@@ -895,11 +955,11 @@
                     </div>
                 </div>
 
-                <div class="page-navigation" style="margin-top: 48px;">
-                    <a href="#section-5" class="nav-btn prev"><i data-feather="arrow-left"></i> Prev: Standalone
-                        Launch</a>
-                    <a href="#section-7" class="nav-btn next">Next: Backend Launch <i
-                            data-feather="arrow-right"></i></a>
+                <div class="page-navigation">
+                    <button class="nav-btn prev" data-target="#section-5"><i data-feather="arrow-left"></i> Prev:
+                        Standalone Launch</button>
+                    <button class="nav-btn next" data-target="#section-7">Next: Backend Launch <i
+                            data-feather="arrow-right"></i></button>
                 </div>
             </section>
 
@@ -916,8 +976,7 @@
                     (client secret).</p>
 
                 <h3>2. Sequence Diagram: Two-Legged JWT Bearer Flow</h3>
-                <div
-                    style="background: white; padding: 24px; border-radius: 12px; margin-bottom: 32px; border: 1px solid var(--color-border); overflow-x: auto;">
+                <div class="diagram-container">
                     <div class="mermaid">
                         sequenceDiagram
                         participant App as Backend App (Daemon)
@@ -967,19 +1026,20 @@
 
                 <div class="code-block" style="margin-top: 24px;">
                     <div class="code-header">Example Payload Your Server Must Sign</div>
-                    <code>{
+                    <pre><code class="language-json">{
   "iss": "my-client-id",
   "sub": "my-client-id",
   "aud": "https://ehr.hospital.org/oauth2",
   "exp": 1700003600,
   "jti": "random-uuid-xyz-123"
-}</code>
+}</code></pre>
                 </div>
 
-                <div class="page-navigation" style="margin-top: 48px;">
-                    <a href="#section-6" class="nav-btn prev"><i data-feather="arrow-left"></i> Prev: Embed Launch</a>
-                    <a href="#section-9" class="nav-btn next">Next: Building Clients <i
-                            data-feather="arrow-right"></i></a>
+                <div class="page-navigation">
+                    <button class="nav-btn prev" data-target="#section-6"><i data-feather="arrow-left"></i> Prev: Embed
+                        Launch</button>
+                    <button class="nav-btn next" data-target="#section-9">Next: Building Clients <i
+                            data-feather="arrow-right"></i></button>
                 </div>
             </section>
 
@@ -994,25 +1054,25 @@
                     standardized format.</p>
                 <div class="code-block" style="margin-bottom: 24px">
                     <div class="code-header">SMART v2 Scope Syntax Format</div>
-                    <code>[context] / [resource] . [action] ? [optional parameters]</code>
+                    <pre><code class="language-text">[context] / [resource] . [action] ? [optional parameters]</code></pre>
                 </div>
 
                 <div class="feature-grid" style="margin-top: 24px;">
                     <div class="feature-card">
-                        <h3 style="color: #ef4444;"><i data-feather="target"></i> Context</h3>
+                        <h3 style="color: var(--color-danger);"><i data-feather="target"></i> Context</h3>
                         <p>Defines the bounding box of the data. <code>patient</code> means data belonging to a single
                             specific patient. <code>user</code> means data the currently logged-in clinician can see.
                             <code>system</code> means unrestricted bulk access.
                         </p>
                     </div>
                     <div class="feature-card">
-                        <h3 style="color: #7234ae;"><i data-feather="database"></i> Resource</h3>
+                        <h3 style="color: var(--color-secondary);"><i data-feather="database"></i> Resource</h3>
                         <p>The exact FHIR Resource Type (e.g., <code>Observation</code>, <code>Encounter</code>,
                             <code>Condition</code>). You can also use <code>*</code> to request all resources.
                         </p>
                     </div>
                     <div class="feature-card">
-                        <h3 style="color: #3b82f6;"><i data-feather="edit-2"></i> Action</h3>
+                        <h3 style="color: var(--color-primary);"><i data-feather="edit-2"></i> Action</h3>
                         <p>The CRUD operation allowed. Standard actions are <code>c</code> (create), <code>r</code>
                             (read), <code>u</code> (update), <code>d</code> (delete), or <code>s</code> (search).</p>
                     </div>
@@ -1037,35 +1097,35 @@
                             <td><strong>Patient Demographics</strong></td>
                             <td><code>Patient</code></td>
                             <td><code
-                                    style="background-color: transparent; border: none; padding: 0; color: #ef4444;">patient/Patient.rs</code>
+                                    style="background-color: transparent; border: none; padding: 0; color: var(--color-danger);">patient/Patient.rs</code>
                             </td>
                         </tr>
                         <tr>
                             <td><strong>Vitals, Labs, Smoking Status</strong></td>
                             <td><code>Observation</code></td>
                             <td><code
-                                    style="background-color: transparent; border: none; padding: 0; color: #7234ae;">patient/Observation.rs</code>
+                                    style="background-color: transparent; border: none; padding: 0; color: var(--color-secondary);">patient/Observation.rs</code>
                             </td>
                         </tr>
                         <tr>
                             <td><strong>Allergies & Intolerances</strong></td>
                             <td><code>AllergyIntolerance</code></td>
                             <td><code
-                                    style="background-color: transparent; border: none; padding: 0; color: #3b82f6;">patient/AllergyIntolerance.rs</code>
+                                    style="background-color: transparent; border: none; padding: 0; color: var(--color-primary);">patient/AllergyIntolerance.rs</code>
                             </td>
                         </tr>
                         <tr>
                             <td><strong>Medications & Prescriptions</strong></td>
                             <td><code>MedicationRequest</code>, <code>MedicationStatement</code></td>
                             <td><code
-                                    style="background-color: transparent; border: none; padding: 0; color: #ef4444;">patient/MedicationRequest.rs</code>
+                                    style="background-color: transparent; border: none; padding: 0; color: var(--color-danger);">patient/MedicationRequest.rs</code>
                             </td>
                         </tr>
                         <tr>
                             <td><strong>Write Notes to Chart</strong></td>
                             <td><code>DocumentReference</code></td>
                             <td><code
-                                    style="background-color: transparent; border: none; padding: 0; color: #7234ae;">patient/DocumentReference.c</code>
+                                    style="background-color: transparent; border: none; padding: 0; color: var(--color-secondary);">patient/DocumentReference.c</code>
                             </td>
                         </tr>
                     </tbody>
@@ -1093,10 +1153,10 @@
                 </ul>
 
                 <div class="page-navigation" style="margin-top: 48px;">
-                    <a href="#section-4" class="nav-btn prev"><i data-feather="arrow-left"></i> Prev: Config &
-                        Discovery</a>
-                    <a href="#section-5" class="nav-btn next">Next: Standalone Launch <i
-                            data-feather="arrow-right"></i></a>
+                    <button class="nav-btn prev" data-target="#section-4"><i data-feather="arrow-left"></i> Prev: Config
+                        &amp; Discovery</button>
+                    <button class="nav-btn next" data-target="#section-5">Next: Standalone Launch <i
+                            data-feather="arrow-right"></i></button>
                 </div>
             </section>
 
@@ -1112,8 +1172,8 @@
 
                 <div class="code-block" style="margin-bottom: 24px;">
                     <div class="code-header">Service Architecture</div>
-                    <code>import { OAuthServiceFactory } from 'src/domains/nodered/services/oauth/OAuthServiceFactory';
-const ecwOAuth = OAuthServiceFactory.getService('ecw');</code>
+                    <pre><code class="language-javascript">import { OAuthServiceFactory } from 'src/domains/nodered/services/oauth/OAuthServiceFactory';
+const ecwOAuth = OAuthServiceFactory.getService('ecw');</code></pre>
                 </div>
 
                 <h3>Setup by Launch Type</h3>
@@ -1124,49 +1184,50 @@ const ecwOAuth = OAuthServiceFactory.getService('ecw');</code>
                         <i data-feather="server"></i>
                         <h3>1. Backend Launch</h3>
                         <p>Uses JWT Bearer assertion (RS384). No user interaction required.</p>
-                        <div class="code-block" style="margin-top: 12px; font-size: 0.75em; padding: 12px;">
-                            <code>const tokens = await ecwOAuth.generateBackendToken({
+                        <div class="code-block" style="margin-top: 12px;">
+                            <pre><code class="language-javascript">const tokens = await ecwOAuth.generateBackendToken({
   client_id: 'your-id',
   app_type: 'confidential',
   private_key: '...',
   token_url: '...',
   fhir_base_url: '...'
-});</code>
+});</code></pre>
                         </div>
                     </div>
                     <div class="feature-card">
                         <i data-feather="smartphone"></i>
                         <h3>2. Standalone Launch</h3>
                         <p>Patient/Provider flows with mandatory PKCE sequence.</p>
-                        <div class="code-block" style="margin-top: 12px; font-size: 0.75em; padding: 12px;">
-                            <code>// 1. Generate URL + PKCE
-const { authUrl, code_verifier } = 
+                        <div class="code-block" style="margin-top: 12px;">
+                            <pre><code class="language-javascript">// 1. Generate URL + PKCE
+const { authUrl, code_verifier } =
   await ecwOAuth.generateAuthUrl(...);
 
 // 2. Exchange Code
 const tokens = await ecwOAuth.exchangeCodeForToken(
   config, code, code_verifier, ...
-);</code>
+);</code></pre>
                         </div>
                     </div>
                     <div class="feature-card">
                         <i data-feather="layout"></i>
                         <h3>3. Embed Launch</h3>
                         <p>For SMART apps launched internally from within ECW's EHR interface.</p>
-                        <div class="code-block" style="margin-top: 12px; font-size: 0.75em; padding: 12px;">
-                            <code>// 1. Process Launch Token
-const { redirect, code_verifier } = 
+                        <div class="code-block" style="margin-top: 12px;">
+                            <pre><code class="language-javascript">// 1. Process Launch Token
+const { redirect, code_verifier } =
   await ecwOAuth.handleEmbedLaunch(...);
 
 // 2. Exchange Code
-const tokens = await ecwOAuth.exchangeCodeForToken(...);</code>
+const tokens = await ecwOAuth.exchangeCodeForToken(...);</code></pre>
                         </div>
                     </div>
                 </div>
 
                 <div class="page-navigation">
-                    <a href="#section-7" class="nav-btn prev"><i data-feather="arrow-left"></i> Prev: Backend Launch</a>
-                    <div class="nav-btn next" style="visibility: hidden;"></div>
+                    <button class="nav-btn prev" data-target="#section-7"><i data-feather="arrow-left"></i> Prev:
+                        Backend Launch</button>
+                    <div class="nav-spacer"></div>
                 </div>
             </section>
 
@@ -1192,6 +1253,11 @@ const tokens = await ecwOAuth.exchangeCodeForToken(...);</code>
             }
         });
     </script>
+
+    <!-- Prism.js Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
 </body>
 
 </html>

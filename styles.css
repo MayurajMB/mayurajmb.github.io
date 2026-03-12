@@ -10,6 +10,10 @@
     /* Deep Purple */
     --color-accent: #c7a4ff;
     /* Light Purple */
+    --color-danger: #ef4444;
+    /* Red — inline use only */
+    --color-success: #22c55e;
+    /* Green — inline use only */
 
     --color-border: #e2e8f0;
     --color-callout-bg: #f8fafc;
@@ -37,7 +41,19 @@ body {
     overflow-x: hidden;
 }
 
-/* Typography elements */
+/* ── Reading Progress Bar ───────────────────────────────────── */
+#progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    width: 0%;
+    background: linear-gradient(to right, var(--color-primary), var(--color-secondary));
+    z-index: 200;
+    transition: width 0.1s linear;
+}
+
+/* ── Typography ─────────────────────────────────────────────── */
 h1,
 h2,
 h3,
@@ -66,6 +82,12 @@ h3 {
     font-size: 1.4rem;
     margin-top: 48px;
     color: var(--color-primary);
+}
+
+h4 {
+    font-size: 1.15rem;
+    margin-top: 24px;
+    color: var(--color-text-dark);
 }
 
 p {
@@ -97,7 +119,7 @@ strong {
     font-weight: 600;
 }
 
-/* Mobile Header */
+/* ── Mobile Header ──────────────────────────────────────────── */
 .mobile-header {
     display: none;
     position: fixed;
@@ -126,7 +148,7 @@ strong {
     cursor: pointer;
 }
 
-/* Sidebar Navigation */
+/* ── Sidebar Navigation ─────────────────────────────────────── */
 .sidebar {
     position: fixed;
     top: 0;
@@ -199,6 +221,7 @@ strong {
     width: 18px;
     height: 18px;
     margin-right: 12px;
+    flex-shrink: 0;
 }
 
 .nav-links a:hover {
@@ -210,9 +233,11 @@ strong {
     background-color: rgba(114, 52, 174, 0.08);
     color: var(--color-secondary);
     font-weight: 600;
+    border-left: 3px solid var(--color-secondary);
+    padding-left: 13px;
 }
 
-/* Main Content & SPA Routing */
+/* ── Main Content & SPA Routing ─────────────────────────────── */
 .content {
     margin-left: var(--sidebar-width);
     width: calc(100% - var(--sidebar-width));
@@ -228,20 +253,18 @@ strong {
 /* SPA Transitions */
 section.page-section {
     display: none;
-    /* Hidden by default */
     margin-bottom: 80px;
 }
 
 section.page-section.active {
     display: block;
-    /* Visible when active class is applied */
     animation: fadeIn 0.4s ease-in-out;
 }
 
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(8px);
     }
 
     to {
@@ -250,9 +273,13 @@ section.page-section.active {
     }
 }
 
-/* UI Components */
+@media (prefers-reduced-motion: reduce) {
+    section.page-section.active {
+        animation: none;
+    }
+}
 
-/* Callout / Information Boxes */
+/* ── Callout / Information Boxes ────────────────────────────── */
 .callout {
     display: flex;
     background-color: var(--color-callout-bg);
@@ -291,7 +318,7 @@ section.page-section.active {
     color: var(--color-text-dark);
 }
 
-/* Feature Grid */
+/* ── Feature Grid & Cards ───────────────────────────────────── */
 .feature-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -335,7 +362,13 @@ section.page-section.active {
     color: var(--color-text-muted);
 }
 
-/* Lists styling */
+/* Nested code-block flush with card bottom */
+.feature-card .code-block {
+    margin: 16px -24px -32px;
+    border-radius: 0 0 11px 11px;
+}
+
+/* ── Benefits List ──────────────────────────────────────────── */
 .benefits-list {
     list-style: none;
     padding: 0;
@@ -358,7 +391,7 @@ section.page-section.active {
     flex-shrink: 0;
 }
 
-/* Tables & Code */
+/* ── Tables ─────────────────────────────────────────────────── */
 .table-container {
     overflow-x: auto;
     margin: 32px 0;
@@ -385,6 +418,7 @@ th {
     letter-spacing: 0.05em;
 }
 
+/* ── Code ───────────────────────────────────────────────────── */
 code {
     background-color: var(--color-bg-sidebar);
     color: var(--color-secondary);
@@ -400,6 +434,7 @@ code {
     border-radius: 12px;
     margin: 24px 0;
     overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .code-header {
@@ -408,24 +443,99 @@ code {
     padding: 8px 16px;
     font-size: 0.8rem;
     font-family: var(--font-main);
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    border-bottom: 1px solid #333;
 }
 
+.code-block pre[class*="language-"],
+.code-block pre {
+    margin: 0 !important;
+    padding: 24px !important;
+    font-size: 1rem !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+/* Reset generic `code` styles inside code blocks */
 .code-block code {
-    display: block;
+    background: transparent !important;
+    color: #e2e8f0 !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    font-size: inherit !important;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+    text-shadow: none !important;
+}
+
+/* Token colors — design system palette */
+.code-block .token.property,
+.code-block .token.tag,
+.code-block .token.attr-name {
+    color: #38bdf8 !important;   /* sky blue — JSON keys */
+    text-decoration: none !important;
+}
+
+.code-block .token.string,
+.code-block .token.attr-value {
+    color: #fca5a5 !important;   /* soft red — strings */
+    text-decoration: none !important;
+}
+
+.code-block .token.number {
+    color: #86efac !important;   /* soft green — numbers */
+    text-decoration: none !important;
+}
+
+.code-block .token.boolean,
+.code-block .token.null,
+.code-block .token.keyword {
+    color: #c084fc !important;   /* soft purple — booleans/keywords */
+    text-decoration: none !important;
+}
+
+.code-block .token.punctuation,
+.code-block .token.operator {
+    color: #94a3b8 !important;
+    text-decoration: none !important;
+}
+
+.code-block .token.comment {
+    color: #64748b !important;
+    font-style: italic;
+    text-decoration: none !important;
+}
+
+.code-block .token.function,
+.code-block .token.class-name {
+    color: #38b8b3 !important;   /* teal — functions (brand primary) */
+    text-decoration: none !important;
+}
+
+/* Blanket underline removal */
+.code-block .token {
+    text-decoration: none !important;
+}
+
+/* ── Mermaid Diagram Container ──────────────────────────────── */
+.diagram-container {
+    background: var(--color-bg-main);
     padding: 24px;
-    background: none;
-    border: none;
-    color: #e2e8f0;
-    font-size: 1rem;
+    border-radius: 12px;
+    margin-bottom: 32px;
+    border: 1px solid var(--color-border);
     overflow-x: auto;
 }
 
-/* Pagination container at bottom of sections */
+/* ── Page Navigation ────────────────────────────────────────── */
 .page-navigation {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin-top: 60px;
     padding-top: 24px;
     border-top: 1px solid var(--color-border);
@@ -441,6 +551,9 @@ code {
     color: var(--color-text-dark);
     text-decoration: none;
     font-weight: 500;
+    font-size: 1rem;
+    font-family: var(--font-main);
+    cursor: pointer;
     transition: var(--transition);
 }
 
@@ -463,8 +576,11 @@ code {
     margin-left: 8px;
 }
 
-.nav-btn.next {
-    margin-left: auto;
+/* Invisible spacer so layout stays balanced when only one button exists */
+.nav-spacer {
+    visibility: hidden;
+    pointer-events: none;
+    padding: 12px 24px;
 }
 
 .doc-footer {
@@ -475,7 +591,7 @@ code {
     color: var(--color-text-muted);
 }
 
-/* Responsive Overrides */
+/* ── Responsive ─────────────────────────────────────────────── */
 @media (max-width: 800px) {
     .mobile-header {
         display: flex;
@@ -500,9 +616,13 @@ code {
     .content-wrapper {
         padding: 40px 24px;
     }
+
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
-/* Custom Reference Styles */
+/* ── Reference Section Styles ───────────────────────────────── */
 .ref-header-container {
     display: flex;
     align-items: center;
@@ -520,7 +640,7 @@ code {
 }
 
 .ref-title {
-    color: #4f46e5;
+    color: var(--color-secondary);
     font-size: 1.8rem;
     font-weight: 600;
     margin: 0;
@@ -529,12 +649,13 @@ code {
 
 .ref-divider {
     height: 2px;
-    background-color: #4f46e5;
+    background-color: var(--color-secondary);
+    opacity: 0.35;
     margin-bottom: 32px;
 }
 
 .ref-subtitle {
-    color: #645cbe;
+    color: var(--color-secondary);
     font-size: 1.35rem;
     font-weight: 600;
     margin-top: 40px;
@@ -543,7 +664,7 @@ code {
 
 .ref-text {
     font-size: 1rem;
-    color: #475569;
+    color: var(--color-text-muted);
     margin-bottom: 24px;
     line-height: 1.6;
 }
@@ -558,7 +679,7 @@ code {
 }
 
 .ref-table th {
-    background-color: #7234ae;
+    background-color: var(--color-secondary);
     color: white;
     font-weight: 500;
     text-transform: none;
@@ -569,7 +690,7 @@ code {
 
 .ref-table td {
     padding: 12px 16px;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--color-border);
     color: #334155;
     background-color: white;
 }
@@ -582,16 +703,22 @@ code {
 }
 
 .ref-card {
-    border: 1px solid #818cf8;
+    border: 1px solid rgba(114, 52, 174, 0.25);
     border-radius: 8px;
     padding: 16px;
     background-color: white;
     display: flex;
     flex-direction: column;
+    transition: var(--transition);
+}
+
+.ref-card:hover {
+    border-color: var(--color-secondary);
+    box-shadow: 0 4px 12px rgba(114, 52, 174, 0.08);
 }
 
 .ref-card h4 {
-    color: #4f46e5;
+    color: var(--color-secondary);
     font-size: 1.1rem;
     margin: 0 0 8px 0;
     padding: 0;
@@ -599,8 +726,8 @@ code {
 }
 
 .ref-card p {
-    font-size: 0.85rem;
-    color: #475569;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
     margin-bottom: 16px;
     flex-grow: 1;
 }
@@ -627,7 +754,7 @@ code {
 }
 
 .ref-code-badge {
-    background-color: #4f46e5;
+    background-color: var(--color-secondary);
     color: white;
     font-size: 0.65rem;
     padding: 2px 8px;
