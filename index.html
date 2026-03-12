@@ -1072,76 +1072,180 @@
 
             <!-- SECTION 5: STANDALONE LAUNCH -->
             <section id="section-5" class="page-section">
-                <h1>📱 6. Standalone Launch</h1>
-                <p class="lead">For patient-facing mobile apps and Web SPAs launched <em>outside</em> the EHR network.
-                </p>
+                <h1>📱 7. Standalone Launch</h1>
+                <p class="lead">The user initiates the app <em>outside</em> the EHR — from a phone home screen, a
+                    browser bookmark, or a patient portal link. The app starts cold with no context and must acquire
+                    it via OAuth.</p>
 
                 <h3>1. The Use Case</h3>
-                <p>A patient downloads a diet tracker on their iPhone. They click "Connect to My Hospital". The app
-                    starts "cold" and doesn't know who the patient is yet. It must guide them to the hospital's login
-                    page securely.</p>
+                <p>A patient downloads a diet tracker on their iPhone and taps "Connect to My Hospital". The app has
+                    no idea who the patient is or which FHIR server to talk to. It must: discover the EHR endpoints,
+                    redirect the user to authenticate, acquire a patient context, and exchange a short-lived code for
+                    tokens — all without ever holding a hardcoded secret.</p>
 
-                <h3>2. Sequence Diagram: Auth Code Flow with PKCE</h3>
-                <p>Because the app lives on the open public internet, it uses the Authorization Code flow enhanced with
-                    PKCE.</p>
+                <h3>2. Sequence Diagram</h3>
                 <div class="diagram-container">
                     <div class="mermaid">
                         sequenceDiagram
                         participant U as User (Patient)
-                        participant A as Mobile App (Client)
+                        participant A as App (Public Client)
                         participant Auth as EHR Auth Server
                         participant FHIR as EHR FHIR API
 
-                        A->>A: Generate PKCE Verifier & Hash it into Challenge
-                        A->>U: Redirect to EHR Login URI
-                        U->>Auth: User sees Epic/Cerner Login Screen
-                        Note over A,Auth: Request includes client_id, scopes, and PKCE Challenge
-                        U->>Auth: User logs in & grants app consent
-                        Auth->>A: Redirect back to App with Auth Code
-                        A->>Auth: POST /token (Sends Code + Original PKCE Verifier)
-                        Auth->>Auth: Verifies Verifier matches initial Challenge
-                        Auth->>A: Returns Access Token & ID Token
-                        A->>FHIR: GET /Patient (Header: Bearer Token)
-                        FHIR->>A: Returns FHIR JSON
+                        A->>Auth: GET [FHIR_BASE]/.well-known/smart-configuration
+                        Auth-->>A: authorization_endpoint, token_endpoint
+                        A->>A: Generate code_verifier (random, 43-128 chars)
+                        A->>A: code_challenge = BASE64URL(SHA256(verifier))
+                        A->>U: Redirect → authorization_endpoint?response_type=code&client_id=...&code_challenge=...&scope=launch/patient+patient/*.rs+openid+fhirUser
+                        U->>Auth: User logs in & grants consent
+                        Auth->>A: Redirect → redirect_uri?code=abc123&state=xyz
+                        A->>A: Validate state matches stored value
+                        A->>Auth: POST token_endpoint (code + code_verifier)
+                        Auth->>Auth: SHA256(code_verifier) == stored code_challenge ✓
+                        Auth-->>A: access_token, id_token, patient, expires_in
+                        A->>FHIR: GET /Patient/{patient} (Authorization: Bearer token)
+                        FHIR-->>A: Patient FHIR resource
                     </div>
                 </div>
 
-                <h3>3. What is PKCE? (Proof Key for Code Exchange)</h3>
-                <p>Because an iPhone app or a Single Page Application (SPA) cannot safely embed a hardcoded
-                    <code>client_secret</code> (since anyone could inspect the code and steal it), they must use PKCE to
-                    dynamically prove they are the legitimate app.
-                </p>
+                <h3>3. Step-by-Step Implementation</h3>
 
-                <div class="feature-grid" style="grid-template-columns: 1fr; gap: 16px; margin-top: 16px;">
-                    <div class="feature-card" style="text-align: left;">
-                        <h3 style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;"><i
-                                data-feather="lock"></i> 1. The Promise (Challenge)</h3>
-                        <p style="margin: 0;">Before redirecting the user, the app creates a highly random secret
-                            (Verifier), hashes it (Challenge), and sends the Challenge to the EHR. It's safe to send
-                            over the URL because mathematicians cannot reverse a secure hash.</p>
-                    </div>
-                    <div class="feature-card"
-                        style="text-align: left; background: rgba(239, 68, 68, 0.04); border-color: rgba(239, 68, 68, 0.2);">
-                        <h3
-                            style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px; color: var(--color-danger);">
-                            <i data-feather="alert-triangle"></i> 2. The Interception Risk
-                        </h3>
-                        <p style="margin: 0; color: #991b1b;">If a malicious app on the user's phone
-                            intercepts the URI
-                            redirect containing the Auth Code, it will try to instantly trade that code for an Access
-                            Token at the <code>/token</code> endpoint.</p>
-                    </div>
-                    <div class="feature-card" style="text-align: left;">
-                        <h3 style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;"><i
-                                data-feather="shield"></i> 3. The Proof (Verifier)</h3>
-                        <p style="margin: 0;">The EHR requires the app trading the code to present the <em>original,
-                                unhashed Verifier</em>. The malicious app doesn't know the Verifier. The legitimate app
-                            does. The EHR issues the token to the legitimate app and denies the attacker.</p>
+                <h4>Step 1 — Discover EHR Endpoints</h4>
+                <p>Never hardcode the authorization or token URL. Fetch them dynamically from the well-known
+                    configuration endpoint relative to the FHIR base URL the user has configured.</p>
+                <div class="code-block">
+                    <div class="code-header">Step 1 · Discovery</div>
+                    <pre><code class="language-javascript">const FHIR_BASE = 'https://fhir.ecwcloud.com/fhir/r4/FFBJCD';
+
+const config = await fetch(
+  `${FHIR_BASE}/.well-known/smart-configuration`,
+  { headers: { Accept: 'application/json' } }
+).then(r => r.json());
+
+const { authorization_endpoint, token_endpoint } = config;</code></pre>
+                </div>
+
+                <h4>Step 2 — Generate PKCE Verifier & Challenge</h4>
+                <p>The verifier is a cryptographically random string (43–128 unreserved ASCII characters). The
+                    challenge is its SHA-256 hash, Base64url-encoded. The verifier is stored locally; only the
+                    challenge travels over the network.</p>
+                <div class="code-block">
+                    <div class="code-header">Step 2 · PKCE Generation</div>
+                    <pre><code class="language-javascript">function generateVerifier() {
+  const array = new Uint8Array(64);
+  crypto.getRandomValues(array);
+  return btoa(String.fromCharCode(...array))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+async function generateChallenge(verifier) {
+  const data = new TextEncoder().encode(verifier);
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  return btoa(String.fromCharCode(...new Uint8Array(hash)))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+const code_verifier  = generateVerifier();
+const code_challenge = await generateChallenge(code_verifier);
+const state          = crypto.randomUUID(); // ≥122 bits entropy
+
+// Persist until the redirect returns
+sessionStorage.setItem('pkce_verifier', code_verifier);
+sessionStorage.setItem('oauth_state',   state);</code></pre>
+                </div>
+
+                <h4>Step 3 — Build & Redirect to Authorization URL</h4>
+                <p>Construct the URL with all required parameters and redirect the browser. The <code>aud</code>
+                    parameter must be the FHIR server base URL — this binds the token to a specific server and
+                    prevents token reuse attacks.</p>
+                <div class="code-block">
+                    <div class="code-header">Step 3 · Authorization Redirect</div>
+                    <pre><code class="language-javascript">const params = new URLSearchParams({
+  response_type:         'code',
+  client_id:             'YOUR_CLIENT_ID',
+  redirect_uri:          'https://your-app.com/callback',
+  scope:                 'launch/patient patient/Patient.rs patient/Observation.rs openid fhirUser offline_access',
+  state,
+  aud:                   FHIR_BASE,
+  code_challenge,
+  code_challenge_method: 'S256',
+});
+
+window.location.assign(`${authorization_endpoint}?${params}`);</code></pre>
+                </div>
+
+                <h4>Step 4 — Handle the Callback & Validate State</h4>
+                <p>The EHR redirects back to your <code>redirect_uri</code> with <code>?code=…&state=…</code>.
+                    <strong>Always validate the state</strong> before proceeding — a mismatch indicates a CSRF
+                    attack.</p>
+                <div class="code-block">
+                    <div class="code-header">Step 4 · Callback Validation</div>
+                    <pre><code class="language-javascript">const urlParams    = new URLSearchParams(window.location.search);
+const code         = urlParams.get('code');
+const returnedState = urlParams.get('state');
+
+if (returnedState !== sessionStorage.getItem('oauth_state')) {
+  throw new Error('State mismatch — possible CSRF attack. Aborting.');
+}
+
+const code_verifier = sessionStorage.getItem('pkce_verifier');
+sessionStorage.removeItem('pkce_verifier');
+sessionStorage.removeItem('oauth_state');</code></pre>
+                </div>
+
+                <h4>Step 5 — Exchange Code for Tokens</h4>
+                <p>POST the authorization code along with the original <code>code_verifier</code> (not the
+                    challenge) to the token endpoint. The EHR re-hashes the verifier and confirms it matches the
+                    challenge sent in Step 3.</p>
+                <div class="code-block">
+                    <div class="code-header">Step 5 · Token Exchange</div>
+                    <pre><code class="language-javascript">const tokenResponse = await fetch(token_endpoint, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  body: new URLSearchParams({
+    grant_type:    'authorization_code',
+    code,
+    redirect_uri:  'https://your-app.com/callback',
+    code_verifier, // ← original verifier, NOT the challenge
+    client_id:     'YOUR_CLIENT_ID',
+  }),
+}).then(r => r.json());
+
+// tokenResponse contains:
+// { access_token, token_type, expires_in, scope,
+//   patient, id_token, refresh_token? }</code></pre>
+                </div>
+
+                <h4>Step 6 — Call the FHIR API</h4>
+                <p>Use the <code>access_token</code> as a Bearer token. The <code>patient</code> field in the token
+                    response is the FHIR Patient resource ID the user selected during login.</p>
+                <div class="code-block">
+                    <div class="code-header">Step 6 · Fetch FHIR Data</div>
+                    <pre><code class="language-javascript">const { access_token, patient } = tokenResponse;
+
+const patientData = await fetch(
+  `${FHIR_BASE}/Patient/${patient}`,
+  { headers: { Authorization: `Bearer ${access_token}` } }
+).then(r => r.json());
+
+const observations = await fetch(
+  `${FHIR_BASE}/Observation?patient=${patient}&category=laboratory`,
+  { headers: { Authorization: `Bearer ${access_token}` } }
+).then(r => r.json());</code></pre>
+                </div>
+
+                <div class="callout warning">
+                    <i data-feather="alert-triangle" class="callout-icon"></i>
+                    <div class="callout-content">
+                        <strong>Never store tokens in localStorage.</strong> Use
+                        <code>sessionStorage</code> or an in-memory store. <code>localStorage</code> is accessible
+                        to any script on your page — a single XSS vulnerability exposes every token you've stored.
                     </div>
                 </div>
 
                 <div class="page-navigation">
-                    <button class="nav-btn prev" data-target="#section-10"><i data-feather="arrow-left"></i> Prev: Launch Overview</button>
+                    <button class="nav-btn prev" data-target="#section-10"><i data-feather="arrow-left"></i> Prev:
+                        Launch Overview</button>
                     <button class="nav-btn next" data-target="#section-6">Next: Embed Launch <i
                             data-feather="arrow-right"></i></button>
                 </div>
@@ -1149,66 +1253,331 @@
 
             <!-- SECTION 6: EMBED LAUNCH -->
             <section id="section-6" class="page-section">
-                <h1>🏥 7. Embed Launch (EHR Launch)</h1>
-                <p class="lead">For single-page applications embedded directly inside a clinician's EHR interface (often
-                    rendered within an iFrame or integrated browser window).</p>
+                <h1>🏥 8. Embed Launch (EHR Launch)</h1>
+                <p class="lead">The EHR opens your app from within its own interface. The clinician never logs in
+                    twice — the active patient and encounter are injected automatically into your token response.</p>
 
-                <h3>1. The Use Case and The "Magic" of Context</h3>
-                <p><strong>Scenario:</strong> Dr. House is currently viewing Patient John Doe's chart inside Cerner
-                    PowerChart. He navigates to a designated tab and clicks "Open Growth Chart SMART App".</p>
-                <p>Unlike a Standalone launch, the app does not show a login screen. It doesn't even ask the doctor to
-                    search for John Doe. The app <em>instantly</em> opens and displays John Doe's data. This magical
-                    inheritance of active context is the hallmark of an Embed Launch.</p>
+                <h3>1. The Use Case</h3>
+                <p><strong>Scenario:</strong> Dr. House is viewing Patient John Doe's chart in ECW. He clicks "Open
+                    MAIA" in the sidebar. Your app appears in an iFrame — already scoped to John Doe, with the
+                    active encounter ID ready to use. No login. No patient search. No manual context setup.</p>
+                <p>The mechanism is the <code>launch</code> parameter — an opaque, short-lived token the EHR
+                    generates at the exact moment it navigates to your launch URL. It encodes the clinician's active
+                    session context. Your app echoes it back during the authorization request, and the EHR's auth
+                    server resolves it into a context-aware access token.</p>
 
-                <h3>2. Sequence Diagram: The EHR Launch Flow</h3>
+                <h3>2. How Embed Differs from Standalone</h3>
+                <table class="ref-table">
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Standalone</th>
+                            <th>Embed (EHR Launch)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Who starts the flow?</strong></td>
+                            <td>The user (opens app directly)</td>
+                            <td>The EHR (navigates to your <code>/launch</code> URL)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>FHIR server known upfront?</strong></td>
+                            <td>Hardcoded or user-configured</td>
+                            <td>Provided by EHR in <code>iss</code> query param</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Login screen?</strong></td>
+                            <td>Always shown</td>
+                            <td>Usually skipped (SSO with EHR session)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Patient context</strong></td>
+                            <td>User selects via <code>launch/patient</code> scope</td>
+                            <td>EHR injects via <code>launch</code> token</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Extra scope required</strong></td>
+                            <td><code>launch/patient</code></td>
+                            <td><code>launch</code> (echo back the launch token)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Token response extras</strong></td>
+                            <td><code>patient</code> (from selector)</td>
+                            <td><code>patient</code> + <code>encounter</code> + <code>need_patient_banner</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>3. Sequence Diagram</h3>
                 <div class="diagram-container">
                     <div class="mermaid">
                         sequenceDiagram
                         participant Doc as Clinician
-                        participant EHR as EHR UI (Epic/Cerner)
+                        participant EHR as EHR UI (ECW)
                         participant A as SMART App (iFrame)
                         participant Auth as EHR Auth Server
+                        participant FHIR as EHR FHIR API
 
-                        Doc->>EHR: Opens Patient Chart & Clicks App Link
-                        EHR->>A: Navigates to App's /launch URL (Query: ?launch=abc&iss=https...)
-                        Note over A: App saves 'launch' token locally
-                        A->>Auth: Redirect to /authorize (passes client_id & launch=abc)
-                        Auth->>Auth: Reads 'launch' token to remember active Patient
-                        Note over Auth: Clinician is already logged into EHR. Auto-SSO!
-                        Auth->>A: Redirect back to App with Auth Code
-                        A->>Auth: POST /token (Sends Code)
-                        Auth->>A: Returns Access Token + Context (patient_id, encounter_id)
+                        Doc->>EHR: Opens patient chart, clicks MAIA link
+                        EHR->>A: GET /launch?iss=https://fhir.ecw.org/r4/ABC&launch=opaque-xyz
+                        A->>Auth: GET iss/.well-known/smart-configuration
+                        Auth-->>A: authorization_endpoint, token_endpoint
+                        A->>A: Generate PKCE verifier + challenge, store state
+                        A->>Auth: GET /authorize?launch=opaque-xyz&scope=launch+patient/*.rs+openid+fhirUser&code_challenge=...
+                        Note over Auth: Clinician already has EHR session — SSO, no login page shown
+                        Auth->>Auth: Unwrap launch token → patient + encounter resolved
+                        Auth->>A: Redirect /callback?code=abc&state=xyz
+                        A->>A: Validate state
+                        A->>Auth: POST /token (code + code_verifier)
+                        Auth-->>A: access_token + patient + encounter + need_patient_banner
+                        A->>FHIR: GET /Patient/{patient} — Bearer token
+                        FHIR-->>A: Patient resource (John Doe)
                     </div>
                 </div>
 
-                <h3>3. Breaking Down the Context Payload</h3>
-                <p>The primary architectural difference is the <code>launch</code> parameter. The EHR generates this
-                    opaque string right before it opens the app's iframe. The app blindly passes this string back to the
-                    Auth Server during the OAuth handshake.</p>
-                <p>Because the Auth Server generated the launch token, it knows exactly which chart the doctor was
-                    looking at. When the final Access Token is returned, the EHR attaches the crucial contextual IDs
-                    directly to the JSON response.</p>
+                <h3>4. The Token Response — What the EHR Gives You</h3>
+                <p>This is what makes Embed Launch special. Beyond the standard OAuth fields, the EHR injects
+                    clinical context fields directly into the token JSON. Your app should read all of them.</p>
 
-                <div class="code-block" style="margin-top: 16px;">
-                    <div class="code-header">Example Token Response Endpoint JSON</div>
+                <div class="code-block">
+                    <div class="code-header">Embed Launch Token Response (ECW Example)</div>
                     <pre><code class="language-json">{
-  "access_token": "eyJhbGciOiJSUzI1NiIs...",
-  "token_type": "Bearer",
-  "expires_in": 3600,
-  "scope": "patient/*.read openid fhirUser",
-  "patient": "12b3c4d5",
-  "encounter": "987654321",
-  "smart_style_url": "https://..."
+  "access_token":        "eyJhbGciOiJSUzI1NiIsImtpZCI6Imp3dCJ9...",
+  "token_type":          "Bearer",
+  "expires_in":          3600,
+  "scope":               "launch patient/Patient.rs patient/Observation.rs openid fhirUser",
+
+  "patient":             "c5b11811-45b8-4a3f-b0f1-00505684ce1b",
+  "encounter":           "68976711-1234-4960-abcd-11a37a19a9c9",
+  "need_patient_banner": true,
+  "smart_style_url":     "https://fhir.ecwcloud.com/smart-style.json",
+
+  "id_token":            "eyJhbGciOiJSUzI1NiJ9..."
 }</code></pre>
                 </div>
 
-                <div class="callout tip">
-                    <i data-feather="eye" class="callout-icon"></i>
+                <div class="feature-grid" style="margin-top: 8px;">
+                    <div class="feature-card" style="text-align:left;">
+                        <h3 style="margin-top:0;"><i data-feather="user"></i> <code>patient</code></h3>
+                        <p style="margin:0;">The FHIR Patient resource ID for the chart the doctor was viewing. Use
+                            this as the <code>patient</code> query parameter in every FHIR call. Never ask the user
+                            to pick a patient.</p>
+                    </div>
+                    <div class="feature-card" style="text-align:left;">
+                        <h3 style="margin-top:0;"><i data-feather="clipboard"></i> <code>encounter</code></h3>
+                        <p style="margin:0;">The active visit/encounter ID. Use this for documentation, order
+                            creation, or any workflow that is encounter-scoped. Not all EHRs return this — check
+                            before using.</p>
+                    </div>
+                    <div class="feature-card" style="text-align:left;">
+                        <h3 style="margin-top:0;"><i data-feather="layout"></i> <code>need_patient_banner</code>
+                        </h3>
+                        <p style="margin:0;">A UX hint from the EHR. <code>true</code> means the EHR is NOT already
+                            showing a patient header — your app should display one. <code>false</code> means the EHR
+                            UI already has the patient banner visible above your iFrame.</p>
+                    </div>
+                </div>
+
+                <h3>5. Step-by-Step Implementation</h3>
+
+                <h4>Step 1 — Handle the <code>/launch</code> Route</h4>
+                <p>Register a launch URL with the EHR developer portal. The EHR navigates your iFrame to this URL
+                    with <code>iss</code> and <code>launch</code> as query parameters. You have two implementation
+                    options depending on your client type:</p>
+
+                <div class="feature-grid" style="margin-bottom: 16px;">
+                    <div class="feature-card" style="text-align:left; background: rgba(56,184,179,0.03); border-color: rgba(56,184,179,0.25);">
+                        <h3 style="margin-top:0; color: var(--color-primary);"><i data-feather="monitor"></i> SPA / Public Client</h3>
+                        <p>The iFrame loads a React/Vue app. All OAuth logic runs in the browser. State is stored in
+                            <code>sessionStorage</code>. This is the most common pattern for lightweight SMART widgets.
+                        </p>
+                    </div>
+                    <div class="feature-card" style="text-align:left; background: rgba(114,52,174,0.03); border-color: rgba(114,52,174,0.2);">
+                        <h3 style="margin-top:0; color: var(--color-secondary);"><i data-feather="server"></i> Server-Side / Confidential Client</h3>
+                        <p>The iFrame loads a page served by your backend (Node/Express). The token exchange happens
+                            on the server, never in the browser. Tokens live in a server-side session. More secure
+                            — preferred for production apps.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">Step 1 · SPA — /launch.html (browser, public client)</div>
+                    <pre><code class="language-javascript">// Runs in the browser as soon as the EHR loads /launch
+const params  = new URLSearchParams(window.location.search);
+const iss     = params.get('iss');
+const launch  = params.get('launch');
+
+if (!iss || !launch) throw new Error('Missing iss or launch');
+
+// 1. Discover EHR endpoints
+const { authorization_endpoint, token_endpoint } = await fetch(
+  `${iss}/.well-known/smart-configuration`,
+  { headers: { Accept: 'application/json' } }
+).then(r => r.json());
+
+// 2. Generate PKCE
+const code_verifier  = generateVerifier();          // (same helpers as Standalone)
+const code_challenge = await generateChallenge(code_verifier);
+const state          = crypto.randomUUID();
+
+// 3. Persist state for the callback
+sessionStorage.setItem('smart_verifier',         code_verifier);
+sessionStorage.setItem('smart_state',            state);
+sessionStorage.setItem('smart_token_endpoint',   token_endpoint);
+sessionStorage.setItem('smart_fhir_base',        iss);
+
+// 4. Redirect to EHR authorization — include `launch` param + `launch` scope
+const authParams = new URLSearchParams({
+  response_type:         'code',
+  client_id:             'YOUR_CLIENT_ID',
+  redirect_uri:          'https://your-app.com/callback',
+  launch,                                 // ← echo the EHR's opaque token
+  scope:                 'launch patient/Patient.rs patient/Observation.rs openid fhirUser',
+  state,
+  aud:                   iss,
+  code_challenge,
+  code_challenge_method: 'S256',
+});
+
+window.location.assign(`${authorization_endpoint}?${authParams}`);</code></pre>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">Step 1 · Server-Side — /launch route (Express, confidential client)</div>
+                    <pre><code class="language-javascript">app.get('/launch', async (req, res) => {
+  const { iss, launch } = req.query;
+  if (!iss || !launch) return res.status(400).send('Missing iss or launch');
+
+  const { authorization_endpoint, token_endpoint } = await fetch(
+    `${iss}/.well-known/smart-configuration`,
+    { headers: { Accept: 'application/json' } }
+  ).then(r => r.json());
+
+  const code_verifier  = generateVerifier();
+  const code_challenge = await generateChallenge(code_verifier);
+  const state          = crypto.randomUUID();
+
+  // Store in server-side session (express-session / Redis)
+  req.session.verifier        = code_verifier;
+  req.session.state           = state;
+  req.session.token_endpoint  = token_endpoint;
+  req.session.fhir_base       = iss;
+
+  const authParams = new URLSearchParams({
+    response_type: 'code', client_id: process.env.CLIENT_ID,
+    redirect_uri: 'https://your-app.com/callback',
+    launch,                          // ← echo the launch token
+    scope: 'launch patient/Patient.rs patient/Observation.rs openid fhirUser',
+    state, aud: iss, code_challenge, code_challenge_method: 'S256',
+  });
+
+  res.redirect(`${authorization_endpoint}?${authParams}`);
+});</code></pre>
+                </div>
+
+                <h4>Step 2 — Handle the Callback & Exchange Code</h4>
+                <p>The token exchange is identical to Standalone — validate state, POST code + verifier. What
+                    changes is what you do with the response: extract and store <code>patient</code>,
+                    <code>encounter</code>, and <code>need_patient_banner</code>.</p>
+
+                <div class="code-block">
+                    <div class="code-header">Step 2 · Callback — SPA (browser)</div>
+                    <pre><code class="language-javascript">// /callback — runs in the browser
+const urlParams     = new URLSearchParams(window.location.search);
+const code          = urlParams.get('code');
+const returnedState = urlParams.get('state');
+
+if (returnedState !== sessionStorage.getItem('smart_state')) {
+  throw new Error('State mismatch — CSRF check failed');
+}
+
+const tokenResponse = await fetch(
+  sessionStorage.getItem('smart_token_endpoint'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type:    'authorization_code',
+      code,
+      redirect_uri:  'https://your-app.com/callback',
+      code_verifier: sessionStorage.getItem('smart_verifier'),
+      client_id:     'YOUR_CLIENT_ID',
+    }),
+  }
+).then(r => r.json());
+
+// Store context for the app to use
+const ctx = {
+  accessToken:        tokenResponse.access_token,
+  fhirBase:           sessionStorage.getItem('smart_fhir_base'),
+  patientId:          tokenResponse.patient,
+  encounterId:        tokenResponse.encounter,
+  needPatientBanner:  tokenResponse.need_patient_banner,
+};
+sessionStorage.setItem('smart_context', JSON.stringify(ctx));
+
+// Navigate to the app's main view
+window.location.replace('/app');</code></pre>
+                </div>
+
+                <h4>Step 3 — Use Context in the App</h4>
+                <div class="code-block">
+                    <div class="code-header">Step 3 · FHIR Calls Scoped to the Active Patient</div>
+                    <pre><code class="language-javascript">// React example — run on app mount
+function App() {
+  const [ctx]       = useState(() => JSON.parse(sessionStorage.getItem('smart_context')));
+  const [patient, setPatient] = useState(null);
+
+  useEffect(() => {
+    // Show patient banner if the EHR isn't already displaying one
+    if (ctx.needPatientBanner) renderPatientBanner(ctx.patientId);
+
+    const headers = { Authorization: `Bearer ${ctx.accessToken}` };
+
+    // All calls are scoped to the active patient — never let the user change this
+    Promise.all([
+      fetch(`${ctx.fhirBase}/Patient/${ctx.patientId}`, { headers }).then(r => r.json()),
+      fetch(`${ctx.fhirBase}/Condition?patient=${ctx.patientId}&clinical-status=active`, { headers }).then(r => r.json()),
+      fetch(`${ctx.fhirBase}/MedicationRequest?patient=${ctx.patientId}&status=active`,  { headers }).then(r => r.json()),
+    ]).then(([patientResource, conditions, meds]) => {
+      setPatient({ ...patientResource, conditions: conditions.entry, meds: meds.entry });
+    });
+  }, []);
+}</code></pre>
+                </div>
+
+                <h4>Step 4 — Handle Token Expiry Inside the EHR Session</h4>
+                <p>EHR-embedded tokens typically expire in 15–60 minutes. If the clinician is still in the EHR
+                    session, you can silently refresh using a hidden iFrame redirect — but most production apps
+                    simply prompt the user to reload the app tab, which triggers a new EHR launch automatically.</p>
+
+                <div class="code-block">
+                    <div class="code-header">Step 4 · Detecting & Handling Token Expiry</div>
+                    <pre><code class="language-javascript">async function fhirFetch(url) {
+  const ctx = JSON.parse(sessionStorage.getItem('smart_context'));
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${ctx.accessToken}` }
+  });
+
+  if (res.status === 401) {
+    // Token expired — in an iFrame we can't re-run the full OAuth flow transparently
+    // Show a non-blocking toast asking the clinician to reopen the app
+    showToast('Session expired. Please close and reopen MAIA from the EHR sidebar.');
+    return null;
+  }
+
+  return res.json();
+}</code></pre>
+                </div>
+
+                <div class="callout warning">
+                    <i data-feather="alert-triangle" class="callout-icon"></i>
                     <div class="callout-content">
-                        <strong>The Golden Rule of Embed:</strong> With an Embed Launch, your application's UI should
-                        <em>never</em> prompt the user to search for a patient. Your app must strictly honor the
-                        <code>patient</code> ID passed in the token exchange response to prevent accidentally showing
-                        the wrong patient's data in the chart view.
+                        <strong>The Golden Rule of Embed:</strong> Never render a patient search UI or allow the
+                        user to switch patients. Your app must use only the <code>patient</code> ID from the token
+                        response. Displaying a different patient's data inside an EHR chart view is a clinical
+                        safety violation and a HIPAA risk.
                     </div>
                 </div>
 
@@ -1222,79 +1591,205 @@
 
             <!-- SECTION 7: BACKEND LAUNCH -->
             <section id="section-7" class="page-section">
-                <h1>⚙️ 8. Backend Launch (System to System)</h1>
-                <p class="lead">A high-security authentication workflow designed exclusively for server daemons, CRON
-                    jobs, and bulk data extraction without human users.</p>
+                <h1>⚙️ 9. Backend Launch (System-to-System)</h1>
+                <p class="lead">No user. No browser. No consent screen. A server daemon authenticates directly to the
+                    EHR using asymmetric cryptography — signing a JWT with its private key as proof of identity.</p>
 
                 <h3>1. The Problem: No Human "Consent"</h3>
-                <p>In Standalone and Embed launches, a human always clicks an "I Agree" button. For background tasks
-                    (like syncing all appointments overnight), there is no human. Therefore, the server application
-                    itself must mathematically prove its identity to the EHR without relying on a shared password
-                    (client secret).</p>
+                <p>For background tasks — overnight appointment syncs, quality measure calculations, bulk data
+                    exports — there is no human to click "I Agree". The application itself must prove its identity.
+                    Sharing a <code>client_secret</code> is too weak for this trust level; instead, the EHR and your
+                    server establish trust through Public Key Cryptography registered at onboarding time.</p>
 
-                <h3>2. Sequence Diagram: Two-Legged JWT Bearer Flow</h3>
+                <h3>2. Sequence Diagram</h3>
                 <div class="diagram-container">
                     <div class="mermaid">
                         sequenceDiagram
-                        participant App as Backend App (Daemon)
-                        participant Auth as EHR Auth Server
+                        participant App as Backend Server (Daemon)
+                        participant Auth as EHR Token Endpoint
                         participant FHIR as EHR FHIR API
 
-                        Note over App: Cron Job Starts
-                        App->>App: 1. Generate local JWT payload
-                        App->>App: 2. Sign JWT using local RSA Private Key
-                        App->>Auth: 3. POST /token (Sends signed JWT + client_id)
-                        Auth->>App: 4. HTTP GET App's public JWKS URL
-                        App-->>Auth: Responds with Public Key Set
-                        Auth->>Auth: 5. Verify JWT Signature using Public Key
-                        Auth->>App: 6. Issue Access Token (No human consent needed)
-                        App->>FHIR: 7. GET /Appointment (Header: Bearer Token)
-                        FHIR->>App: Returns thousands of FHIR JSON records
+                        Note over App: Cron job / event triggers
+                        App->>App: 1. Build JWT assertion payload (iss, sub, aud, exp, jti)
+                        App->>App: 2. Sign JWT with RSA-384 private key
+                        App->>Auth: 3. POST /token — grant_type=client_credentials, client_assertion=signedJWT
+                        Auth->>App: 4. GET https://your-app.com/.well-known/jwks.json
+                        App-->>Auth: 5. Return public key set (JWKS)
+                        Auth->>Auth: 6. Verify signature, check exp/jti, confirm client_id
+                        Auth-->>App: 7. access_token (expires in ~300s), scope=system/*.rs
+                        App->>FHIR: 8. GET /Patient?_count=1000 (Bearer token)
+                        FHIR-->>App: 9. FHIR Bundle — all patients
                     </div>
                 </div>
 
-                <h3>3. Defining the Cryptographic Trust</h3>
-                <p>The entire backend flow rests on Public Key Cryptography (Asymmetric Encryption). Here's how building
-                    that trust works:</p>
-
-                <div class="feature-grid" style="grid-template-columns: 1fr; gap: 16px; margin-top: 16px;">
+                <h3>3. The Cryptographic Trust Model</h3>
+                <div class="feature-grid">
                     <div class="feature-card" style="text-align: left;">
-                        <h3 style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;"><i
-                                data-feather="key"></i> 1. The Keypair</h3>
-                        <p style="margin: 0;">You generate an RSA or EC Keypair. The <strong>Private Key</strong> never
-                            leaves your secure server environment. It is the absolute secret.</p>
+                        <i data-feather="key" style="color: var(--color-secondary);"></i>
+                        <h3>1. Generate a Keypair</h3>
+                        <p>Generate an RSA (2048+ bit) or EC keypair. The <strong>private key never leaves your
+                                server</strong>. Store it in a secrets manager (Vault, AWS Secrets Manager, env
+                            variable). The corresponding public key is what the EHR uses to verify your identity.</p>
                     </div>
                     <div class="feature-card" style="text-align: left;">
-                        <h3 style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;"><i
-                                data-feather="globe"></i> 2. The JWKS (JSON Web Key Set)</h3>
-                        <p style="margin: 0;">You convert the corresponding <strong>Public Key</strong> into a
-                            standardized JSON format (JWKS) and host it securely on the internet where the EHR can reach
-                            it.</p>
+                        <i data-feather="globe" style="color: var(--color-primary);"></i>
+                        <h3>2. Host a JWKS Endpoint</h3>
+                        <p>Convert your public key to JWK format and expose it at a publicly reachable URL (e.g.,
+                            <code>https://your-app.com/.well-known/jwks.json</code>). This URL is registered with
+                            the EHR during onboarding. The EHR fetches it on-demand to verify your JWT signatures.
+                        </p>
                     </div>
                     <div class="feature-card" style="text-align: left;">
-                        <h3 style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;"><i
-                                data-feather="file-text"></i> 3. The Signed Assertion</h3>
-                        <p style="margin: 0;">Instead of sending a password to <code>/token</code>, you construct a JWT
-                            containing your <code>client_id</code>, sign it with your Private Key, and send that. The
-                            EHR fetches your Public Key to mathematically verify you are the true owner of the Private
-                            Key.</p>
+                        <i data-feather="file-text" style="color: var(--color-danger);"></i>
+                        <h3>3. Sign a JWT Assertion</h3>
+                        <p>Instead of a password, you construct a short-lived JWT, sign it with your private key,
+                            and send it to the token endpoint. The EHR fetches your public key, verifies the
+                            signature, and issues an access token. No shared secret ever travels over the network.
+                        </p>
                     </div>
                 </div>
 
-                <div class="code-block" style="margin-top: 24px;">
-                    <div class="code-header">Example Payload Your Server Must Sign</div>
+                <h3>4. Step-by-Step Implementation</h3>
+
+                <h4>Step 1 — Generate & Export Your Keypair</h4>
+                <div class="code-block">
+                    <div class="code-header">Step 1 · Generate RSA Keypair (Node.js)</div>
+                    <pre><code class="language-javascript">const { generateKeyPairSync } = require('crypto');
+
+const { privateKey, publicKey } = generateKeyPairSync('rsa', {
+  modulusLength: 2048,
+  publicKeyEncoding:  { type: 'spki',  format: 'pem' },
+  privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
+});
+
+// Store privateKey in secrets manager — never commit to git
+// publicKey is used to build the JWKS endpoint</code></pre>
+                </div>
+
+                <h4>Step 2 — Serve a JWKS Endpoint</h4>
+                <div class="code-block">
+                    <div class="code-header">Step 2 · JWKS Endpoint (Express)</div>
+                    <pre><code class="language-javascript">const jose = require('jose'); // npm install jose
+
+// Convert PEM public key to JWK format
+const publicKeyObj = await jose.importSPKI(publicKeyPem, 'RS256');
+const jwk = await jose.exportJWK(publicKeyObj);
+jwk.use = 'sig';
+jwk.alg = 'RS256';
+jwk.kid = 'key-001'; // Must match the `kid` in your JWT header
+
+// Register this URL with the EHR developer portal:
+// https://your-app.com/.well-known/jwks.json
+app.get('/.well-known/jwks.json', (req, res) => {
+  res.json({ keys: [jwk] });
+});</code></pre>
+                </div>
+
+                <h4>Step 3 — Build & Sign the JWT Assertion</h4>
+                <p>The JWT is your identity credential. It must contain five specific claims and must expire within
+                    5 minutes. The <code>jti</code> must be a unique ID per request — EHRs reject replayed JWTs.
+                </p>
+                <div class="code-block">
+                    <div class="code-header">Step 3 · JWT Assertion Claims</div>
                     <pre><code class="language-json">{
-  "iss": "my-client-id",
-  "sub": "my-client-id",
-  "aud": "https://ehr.hospital.org/oauth2",
-  "exp": 1700003600,
-  "jti": "random-uuid-xyz-123"
+  "iss": "YOUR_CLIENT_ID",        // who you are — your registered client_id
+  "sub": "YOUR_CLIENT_ID",        // same as iss for backend clients
+  "aud": "https://fhir.ehr.org/oauth2/token",  // the token endpoint URL
+  "exp": 1700003900,              // now + 300 seconds (5 min max)
+  "jti": "f47ac10b-58cc-4372-a567-0e02b2c3d479"  // unique per request
+}</code></pre>
+                </div>
+                <div class="code-block">
+                    <div class="code-header">Step 3 · Sign the JWT (Node.js)</div>
+                    <pre><code class="language-javascript">const jwt = require('jsonwebtoken'); // npm install jsonwebtoken
+
+function buildClientAssertion(clientId, tokenEndpoint, privateKeyPem) {
+  const now = Math.floor(Date.now() / 1000);
+  const payload = {
+    iss: clientId,
+    sub: clientId,
+    aud: tokenEndpoint,
+    exp: now + 300,          // 5-minute window
+    jti: crypto.randomUUID(), // unique per call — prevents replay attacks
+  };
+
+  return jwt.sign(payload, privateKeyPem, {
+    algorithm: 'RS384',      // ECW uses RS384; Epic uses RS384 or RS256
+    header: { kid: 'key-001', alg: 'RS384' },
+  });
 }</code></pre>
                 </div>
 
+                <h4>Step 4 — Request an Access Token</h4>
+                <p>POST to the token endpoint with <code>grant_type=client_credentials</code> and the signed JWT.
+                    No authorization code, no redirect, no user interaction.</p>
+                <div class="code-block">
+                    <div class="code-header">Step 4 · Token Request</div>
+                    <pre><code class="language-javascript">async function getBackendToken(clientId, tokenEndpoint, privateKeyPem) {
+  const client_assertion = buildClientAssertion(clientId, tokenEndpoint, privateKeyPem);
+
+  const response = await fetch(tokenEndpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type:            'client_credentials',
+      client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+      client_assertion,
+      scope:                 'system/Patient.rs system/Observation.rs system/Appointment.rs',
+    }),
+  });
+
+  if (!response.ok) throw new Error(`Token request failed: ${response.status}`);
+  return response.json();
+  // { access_token, token_type: 'bearer', expires_in: 300, scope: '...' }
+}</code></pre>
+                </div>
+
+                <h4>Step 5 — Use the Token & Handle Expiry</h4>
+                <p>Backend tokens are intentionally short-lived (≤300 seconds per spec). Cache the token and
+                    re-request a fresh one before it expires — don't re-request on every FHIR call.</p>
+                <div class="code-block">
+                    <div class="code-header">Step 5 · Token Cache & FHIR Calls</div>
+                    <pre><code class="language-javascript">let cachedToken = null;
+let tokenExpiresAt = 0;
+
+async function getValidToken() {
+  const bufferSeconds = 30; // refresh 30s before actual expiry
+  if (!cachedToken || Date.now() / 1000 > tokenExpiresAt - bufferSeconds) {
+    const result = await getBackendToken(CLIENT_ID, TOKEN_ENDPOINT, PRIVATE_KEY);
+    cachedToken    = result.access_token;
+    tokenExpiresAt = Math.floor(Date.now() / 1000) + result.expires_in;
+  }
+  return cachedToken;
+}
+
+// Bulk fetch all active appointments
+async function syncAppointments() {
+  const token = await getValidToken();
+  const bundle = await fetch(
+    `${FHIR_BASE}/Appointment?status=booked&_count=200`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  ).then(r => r.json());
+
+  for (const entry of bundle.entry ?? []) {
+    await processAppointment(entry.resource);
+  }
+}</code></pre>
+                </div>
+
+                <div class="callout warning">
+                    <i data-feather="alert-triangle" class="callout-icon"></i>
+                    <div class="callout-content">
+                        <strong>EHR must explicitly grant system-level access.</strong> Backend tokens use
+                        <code>system/</code> scopes — the EHR administrator must approve these during app
+                        registration. The app cannot self-authorize bulk access; it requires human approval in the
+                        EHR's admin portal (e.g., Epic App Orchard, ECW Developer Network).
+                    </div>
+                </div>
+
                 <div class="page-navigation">
-                    <button class="nav-btn prev" data-target="#section-6"><i data-feather="arrow-left"></i> Prev: Embed
-                        Launch</button>
+                    <button class="nav-btn prev" data-target="#section-6"><i data-feather="arrow-left"></i> Prev:
+                        Embed Launch</button>
                     <button class="nav-btn next" data-target="#section-9">Next: Building Clients <i
                             data-feather="arrow-right"></i></button>
                 </div>
