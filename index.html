@@ -58,6 +58,7 @@
 
             <div class="sidebar-category">Smart Launch</div>
             <ul class="nav-links">
+                <li><a href="#section-10"><i data-feather="map"></i> Launch Overview</a></li>
                 <li><a href="#section-5"><i data-feather="smartphone"></i> Standalone Launch</a></li>
                 <li><a href="#section-6"><i data-feather="layout"></i> Embed Launch</a></li>
                 <li><a href="#section-7"><i data-feather="server"></i> Backend Launch</a></li>
@@ -822,6 +823,254 @@
             </section>
 
             <!-- SECTION 5: STANDALONE LAUNCH -->
+            <!-- SECTION 10: SMART LAUNCH OVERVIEW -->
+            <section id="section-10" class="page-section">
+                <h1>🚀 6. SMART Launch — Overview</h1>
+                <p class="lead">Before choosing a launch pattern, you need to answer two questions: <strong>Is there a
+                        human in the loop?</strong> and <strong>Can your app keep a secret?</strong> The answers
+                    determine everything.</p>
+
+                <h3>1. The Two Integration Approaches</h3>
+                <p>SMART on FHIR supports two fundamentally different integration architectures. The choice is not a
+                    preference — it is determined by whether a human clinician or patient is present in the flow, or
+                    whether it is purely machine-to-machine.</p>
+
+                <div class="feature-grid" style="margin-bottom: 8px;">
+                    <div class="feature-card" style="text-align: left;">
+                        <i data-feather="users" style="color: var(--color-primary);"></i>
+                        <h3 style="color: var(--color-primary);">User-Facing (Frontend) Integration</h3>
+                        <p>A <strong>human is present</strong> — a clinician inside the EHR, or a patient on their
+                            phone. The OAuth flow requires the user to authenticate and grant consent. The app receives
+                            tokens scoped to that specific person's session and data.</p>
+                        <ul class="benefits-list" style="padding: 0; margin: 0;">
+                            <li style="display:block; padding: 8px 12px;"><i data-feather="check"
+                                    style="color:#22c55e;"></i> Patient apps, clinician dashboards, iFrame widgets</li>
+                            <li style="display:block; padding: 8px 12px;"><i data-feather="check"
+                                    style="color:#22c55e;"></i> Consent screen shown to user</li>
+                            <li style="display:block; padding: 8px 12px;"><i data-feather="check"
+                                    style="color:#22c55e;"></i> Access is scoped to one patient or one user's view</li>
+                        </ul>
+                        <div style="margin-top: 16px; padding: 12px 16px; background: rgba(56,184,179,0.06); border-radius: 8px; border: 1px solid rgba(56,184,179,0.2);">
+                            <strong style="color: var(--color-primary);">Launch patterns:</strong>
+                            <span style="color: var(--color-text-muted);">Standalone Launch · Embed (EHR) Launch</span>
+                        </div>
+                    </div>
+                    <div class="feature-card" style="text-align: left;">
+                        <i data-feather="server" style="color: var(--color-secondary);"></i>
+                        <h3 style="color: var(--color-secondary);">System-to-System (Backend) Integration</h3>
+                        <p><strong>No human is present.</strong> A server daemon, cron job, or ETL pipeline needs to
+                            access EHR data autonomously — overnight syncs, analytics exports, or automated reporting.
+                            The application itself authenticates using cryptographic keys, with no consent screen.</p>
+                        <ul class="benefits-list" style="padding: 0; margin: 0;">
+                            <li style="display:block; padding: 8px 12px;"><i data-feather="check"
+                                    style="color:#22c55e;"></i> Bulk data pipelines, reporting daemons, ETL jobs</li>
+                            <li style="display:block; padding: 8px 12px;"><i data-feather="x"
+                                    style="color:#ef4444;"></i> No user login — no consent screen</li>
+                            <li style="display:block; padding: 8px 12px;"><i data-feather="check"
+                                    style="color:#22c55e;"></i> Uses <code>system/</code> scopes, not
+                                <code>patient/</code> or <code>user/</code>
+                            </li>
+                        </ul>
+                        <div style="margin-top: 16px; padding: 12px 16px; background: rgba(114,52,174,0.06); border-radius: 8px; border: 1px solid rgba(114,52,174,0.2);">
+                            <strong style="color: var(--color-secondary);">Launch pattern:</strong>
+                            <span style="color: var(--color-text-muted);">Backend Services (JWT Bearer)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="ref-table" style="margin-top: 24px;">
+                    <thead>
+                        <tr>
+                            <th>Characteristic</th>
+                            <th>User-Facing (Frontend)</th>
+                            <th>System-to-System (Backend)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Human present?</strong></td>
+                            <td>✅ Yes — patient or clinician</td>
+                            <td>❌ No — fully automated</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Consent screen?</strong></td>
+                            <td>✅ Shown to user</td>
+                            <td>❌ None — pre-approved at registration</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Token scope</strong></td>
+                            <td><code>patient/</code> or <code>user/</code></td>
+                            <td><code>system/</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Authentication</strong></td>
+                            <td>OAuth 2.0 Authorization Code + PKCE</td>
+                            <td>JWT Bearer Assertion (signed with private key)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Secret storage</strong></td>
+                            <td>PKCE replaces the need for a client secret</td>
+                            <td>Private key stored server-side, never leaves</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Data access breadth</strong></td>
+                            <td>One patient or one user's permitted view</td>
+                            <td>Entire EHR dataset (server-approved)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SMART launch pattern</strong></td>
+                            <td>Standalone Launch or Embed Launch</td>
+                            <td>Backend Services Launch</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="ref-divider"></div>
+
+                <h3>2. Public vs. Confidential Clients (Frontend Apps)</h3>
+                <p>Within user-facing integrations, there is a further split based on a single question: <strong>can
+                        your app's execution environment protect a secret?</strong> This determines your client type and
+                    directly dictates which security mechanism you must use.</p>
+
+                <div class="feature-grid" style="margin-bottom: 16px;">
+                    <div class="feature-card" style="text-align: left; background: rgba(239,68,68,0.03); border-color: rgba(239,68,68,0.2);">
+                        <i data-feather="smartphone" style="color: #ef4444;"></i>
+                        <h3 style="margin-top: 8px; color: #b91c1c;">Public Client</h3>
+                        <p><strong>Cannot protect secrets.</strong> The app runs on the end-user's device — in a browser
+                            as a JavaScript SPA, or as a native mobile app. Anyone with the binary or the browser
+                            devtools can inspect it. Embedding a <code>client_secret</code> in this code is the
+                            equivalent of taping your house key to the front door.</p>
+                        <p style="margin-bottom: 8px;"><strong>Examples:</strong></p>
+                        <ul class="benefits-list" style="padding: 0; margin: 0;">
+                            <li style="display:block; padding: 8px 12px;">React / Vue / Angular SPAs in the browser</li>
+                            <li style="display:block; padding: 8px 12px;">iOS / Android native apps</li>
+                            <li style="display:block; padding: 8px 12px;">Desktop Electron apps</li>
+                        </ul>
+                        <div style="margin-top: 16px; padding: 12px; background: rgba(239,68,68,0.06); border-radius: 8px; border: 1px solid rgba(239,68,68,0.15);">
+                            <strong style="color: #b91c1c;">Security mechanism:</strong> <strong>PKCE</strong> — a
+                            dynamic per-session proof that replaces the static secret.
+                        </div>
+                    </div>
+                    <div class="feature-card" style="text-align: left; background: rgba(56,184,179,0.03); border-color: rgba(56,184,179,0.25);">
+                        <i data-feather="lock" style="color: var(--color-primary);"></i>
+                        <h3 style="margin-top: 8px; color: var(--color-primary);">Confidential Client</h3>
+                        <p><strong>Can protect secrets.</strong> The app runs on a server you control. User browsers
+                            interact with your frontend, but the OAuth token exchange happens entirely on your backend
+                            server — the secret never touches the browser. An attacker cannot read server memory
+                            remotely.</p>
+                        <p style="margin-bottom: 8px;"><strong>Examples:</strong></p>
+                        <ul class="benefits-list" style="padding: 0; margin: 0;">
+                            <li style="display:block; padding: 8px 12px;">Node.js / Python / Java server-side apps</li>
+                            <li style="display:block; padding: 8px 12px;">Traditional web apps with a backend (BFF
+                                pattern)</li>
+                            <li style="display:block; padding: 8px 12px;">Apps registered with asymmetric JWKS keys</li>
+                        </ul>
+                        <div style="margin-top: 16px; padding: 12px; background: rgba(56,184,179,0.06); border-radius: 8px; border: 1px solid rgba(56,184,179,0.2);">
+                            <strong style="color: var(--color-primary);">Security mechanism:</strong>
+                            <strong>client_secret</strong> or <strong>private_key_jwt</strong> (asymmetric — preferred).
+                        </div>
+                    </div>
+                </div>
+
+                <table class="ref-table">
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Public Client</th>
+                            <th>Confidential Client</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Can hold a secret?</strong></td>
+                            <td>❌ No</td>
+                            <td>✅ Yes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Token exchange location</strong></td>
+                            <td>In the browser / on device</td>
+                            <td>On the server (never in browser)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Authentication method</strong></td>
+                            <td>PKCE only — no client secret</td>
+                            <td><code>client_secret</code> or <code>private_key_jwt</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Access token lifetime</strong></td>
+                            <td>Short (EHR may restrict)</td>
+                            <td>May be longer (server-side trust)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SMART requirement</strong></td>
+                            <td>PKCE <strong>mandatory</strong></td>
+                            <td>PKCE recommended; secret / key required</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Typical SMART launch</strong></td>
+                            <td>Standalone (SPA/mobile), Embed (JS widget)</td>
+                            <td>Embed with BFF, Standalone with server backend</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout warning" style="margin-top: 8px;">
+                    <i data-feather="alert-triangle" class="callout-icon"></i>
+                    <div class="callout-content">
+                        <strong>The #1 SMART security mistake:</strong> Treating a server-rendered app as a public
+                        client and skipping the secret, <em>or</em> embedding a <code>client_secret</code> in a React
+                        SPA bundle and thinking it is safe. The client type is determined by execution environment —
+                        not by what you prefer. If any part of the secret can reach a user's browser, it is a public
+                        client.
+                    </div>
+                </div>
+
+                <div class="ref-divider"></div>
+
+                <h3>3. Choosing the Right Pattern</h3>
+                <p>Use this decision tree when starting a new SMART integration:</p>
+
+                <div class="feature-grid" style="grid-template-columns: 1fr; gap: 12px;">
+                    <div class="feature-card" style="text-align: left; padding: 20px 24px;">
+                        <p style="margin: 0; font-size: 1rem;"><strong>Q1: Is there a human user authenticating?</strong></p>
+                        <p style="margin: 8px 0 0 0; color: var(--color-text-muted);">
+                            <strong style="color: #ef4444;">No</strong> → Use <strong>Backend Services Launch</strong>.
+                            JWT Bearer, <code>system/</code> scopes, no consent screen. →
+                            <em>See Backend Launch section.</em><br>
+                            <strong style="color: #22c55e;">Yes</strong> → Continue to Q2.
+                        </p>
+                    </div>
+                    <div class="feature-card" style="text-align: left; padding: 20px 24px;">
+                        <p style="margin: 0; font-size: 1rem;"><strong>Q2: Is the user already inside the EHR when they launch your app?</strong></p>
+                        <p style="margin: 8px 0 0 0; color: var(--color-text-muted);">
+                            <strong style="color: #22c55e;">Yes</strong> → Use <strong>Embed (EHR) Launch</strong>. The
+                            EHR injects context (patient + encounter) automatically. SSO — no extra login. →
+                            <em>See Embed Launch section.</em><br>
+                            <strong style="color: #ef4444;">No</strong> → Continue to Q3.
+                        </p>
+                    </div>
+                    <div class="feature-card" style="text-align: left; padding: 20px 24px;">
+                        <p style="margin: 0; font-size: 1rem;"><strong>Q3: Does your app run entirely in the browser or on a mobile device?</strong></p>
+                        <p style="margin: 8px 0 0 0; color: var(--color-text-muted);">
+                            <strong style="color: #22c55e;">Yes</strong> → <strong>Standalone Launch, Public
+                                Client</strong>. Use PKCE. No
+                            secret. User picks their context. → <em>See Standalone Launch section.</em><br>
+                            <strong style="color: #ef4444;">No</strong> → <strong>Standalone Launch, Confidential
+                                Client</strong>. Token exchange on your server with
+                            <code>private_key_jwt</code> or <code>client_secret</code>.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="page-navigation" style="margin-top: 48px;">
+                    <button class="nav-btn prev" data-target="#section-8"><i data-feather="arrow-left"></i> Prev: SMART
+                        Scopes</button>
+                    <button class="nav-btn next" data-target="#section-5">Next: Standalone Launch <i
+                            data-feather="arrow-right"></i></button>
+                </div>
+            </section>
+
+            <!-- SECTION 5: STANDALONE LAUNCH -->
             <section id="section-5" class="page-section">
                 <h1>📱 6. Standalone Launch</h1>
                 <p class="lead">For patient-facing mobile apps and Web SPAs launched <em>outside</em> the EHR network.
@@ -892,8 +1141,7 @@
                 </div>
 
                 <div class="page-navigation">
-                    <button class="nav-btn prev" data-target="#section-8"><i data-feather="arrow-left"></i> Prev: SMART
-                        Scopes</button>
+                    <button class="nav-btn prev" data-target="#section-10"><i data-feather="arrow-left"></i> Prev: Launch Overview</button>
                     <button class="nav-btn next" data-target="#section-6">Next: Embed Launch <i
                             data-feather="arrow-right"></i></button>
                 </div>
@@ -1475,7 +1723,7 @@ patient|user    Observation           in-order             optional
                 <div class="page-navigation" style="margin-top: 48px;">
                     <button class="nav-btn prev" data-target="#section-4"><i data-feather="arrow-left"></i> Prev: Config
                         &amp; Discovery</button>
-                    <button class="nav-btn next" data-target="#section-5">Next: Standalone Launch <i
+                    <button class="nav-btn next" data-target="#section-10">Next: Launch Overview <i
                             data-feather="arrow-right"></i></button>
                 </div>
             </section>
