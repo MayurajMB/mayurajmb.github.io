@@ -44,6 +44,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Scroll to the very top
         window.scrollTo({ top: 0, behavior: 'instant' });
 
+        // Re-render Feather icons in the newly visible section
+        if (typeof feather !== 'undefined') feather.replace();
+
         // Reset progress bar on section change
         if (progressEl) progressEl.style.width = '0%';
 

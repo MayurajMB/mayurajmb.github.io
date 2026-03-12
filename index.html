@@ -31,35 +31,44 @@
 
     <!-- Sidebar Navigation -->
     <nav class="sidebar" id="sidebar">
+        <!-- Logo / Brand Block -->
         <div class="sidebar-header">
-            <h2>SMART on FHIR</h2>
-            <p>Deep Dive</p>
+            <img src="smart-logo.svg" alt="SMART on FHIR logo" class="sidebar-logo">
+            <div class="sidebar-brand">
+                <span class="sidebar-brand-title">SMART on FHIR</span>
+                <span class="sidebar-brand-sub">Deep Dive</span>
+            </div>
         </div>
 
-        <div class="sidebar-category">OVERVIEW</div>
-        <ul class="nav-links">
-            <li><a href="#section-1" class="active"><i data-feather="book-open"></i> Introduction</a></li>
-            <li><a href="#section-2"><i data-feather="monitor"></i> What is SMART?</a></li>
-            <li><a href="#section-3"><i data-feather="layers"></i> Core Standards</a></li>
-        </ul>
+        <!-- Scrollable nav area -->
+        <div class="sidebar-nav">
 
-        <div class="sidebar-category">SECURITY & AUTH</div>
-        <ul class="nav-links">
-            <li><a href="#section-4"><i data-feather="settings"></i> Config & Discovery</a></li>
-            <li><a href="#section-8"><i data-feather="shield"></i> SMART Scopes</a></li>
-        </ul>
+            <div class="sidebar-category">Overview</div>
+            <ul class="nav-links">
+                <li><a href="#section-1" class="active"><i data-feather="book-open"></i> Introduction</a></li>
+                <li><a href="#section-2"><i data-feather="monitor"></i> What is SMART?</a></li>
+                <li><a href="#section-3"><i data-feather="layers"></i> Core Standards</a></li>
+            </ul>
 
-        <div class="sidebar-category">SMART LAUNCH</div>
-        <ul class="nav-links">
-            <li><a href="#section-5"><i data-feather="smartphone"></i> Standalone Launch</a></li>
-            <li><a href="#section-6"><i data-feather="layout"></i> Embed Launch</a></li>
-            <li><a href="#section-7"><i data-feather="server"></i> Backend Launch</a></li>
-        </ul>
+            <div class="sidebar-category">Security &amp; Auth</div>
+            <ul class="nav-links">
+                <li><a href="#section-4"><i data-feather="settings"></i> Config &amp; Discovery</a></li>
+                <li><a href="#section-8"><i data-feather="shield"></i> SMART Scopes</a></li>
+            </ul>
 
-        <div class="sidebar-category">DEVELOPMENT</div>
-        <ul class="nav-links">
-            <li><a href="#section-9"><i data-feather="code"></i> Building Clients</a></li>
-        </ul>
+            <div class="sidebar-category">Smart Launch</div>
+            <ul class="nav-links">
+                <li><a href="#section-5"><i data-feather="smartphone"></i> Standalone Launch</a></li>
+                <li><a href="#section-6"><i data-feather="layout"></i> Embed Launch</a></li>
+                <li><a href="#section-7"><i data-feather="server"></i> Backend Launch</a></li>
+            </ul>
+
+            <div class="sidebar-category">Development</div>
+            <ul class="nav-links">
+                <li><a href="#section-9"><i data-feather="code"></i> Building Clients</a></li>
+            </ul>
+
+        </div>
     </nav>
 
     <!-- Main Content Area -->
@@ -1046,111 +1055,422 @@
             <!-- SECTION 8: SMART SCOPES -->
             <section id="section-8" class="page-section">
                 <h1>🛡️ 5. SMART Scopes & Permissions</h1>
-                <p class="lead">Granular, predictable access control to ensure minimal required data is accessed.</p>
+                <p class="lead">Every scope is a contract — it specifies exactly <em>whose</em> data, <em>which</em>
+                    resource, and <em>what</em> operations your app is permitted to perform.</p>
 
-                <h3>1. The Evolution: v1 vs v2 Scopes</h3>
-                <p>When an application requests access, it must define exactly what it needs to do. In early SMART
-                    versions (v1), scopes were broad and often misunderstood. SMART v2 introduced a much more granular,
-                    standardized format.</p>
-                <div class="code-block" style="margin-bottom: 24px">
-                    <div class="code-header">SMART v2 Scope Syntax Format</div>
-                    <pre><code class="language-text">[context] / [resource] . [action] ? [optional parameters]</code></pre>
+                <h3>1. v1 vs v2 — A Quick History</h3>
+                <p>SMART scopes have gone through two major generations. Most EHRs today support both, but v2 is the
+                    current standard and what all new apps should target.</p>
+
+                <div class="feature-grid" style="margin-bottom: 8px;">
+                    <div class="feature-card"
+                        style="text-align: left; background: rgba(239,68,68,0.03); border-color: rgba(239,68,68,0.2);">
+                        <h3 style="margin-top: 0; color: #b91c1c;"><i data-feather="clock"></i> SMART v1 <span
+                                style="font-size: 0.75rem; font-weight: 500; color: #9ca3af; margin-left: 8px;">2016 –
+                                2022</span></h3>
+                        <p style="margin-bottom: 12px;">Scopes used a simple <code>.read</code> / <code>.write</code> /
+                            <code>.*</code> suffix. Coarse-grained — no way to say "read-only, no delete". A
+                            <code>.read</code> scope granted both read <em>and</em> search; you couldn't separate them.
+                        </p>
+                        <div class="code-block" style="margin: 0;">
+                            <div class="code-header">v1 Scope Examples</div>
+                            <pre><code class="language-text">patient/Observation.read    → read + search only
+patient/Condition.write     → create + update + delete
+patient/*.* OR patient/*.*  → everything (very broad)</code></pre>
+                        </div>
+                    </div>
+                    <div class="feature-card"
+                        style="text-align: left; background: rgba(56,184,179,0.03); border-color: rgba(56,184,179,0.25);">
+                        <h3 style="margin-top: 0; color: var(--color-primary);"><i data-feather="trending-up"></i> SMART
+                            v2 <span
+                                style="font-size: 0.75rem; font-weight: 500; color: #9ca3af; margin-left: 8px;">2022 –
+                                present</span></h3>
+                        <p style="margin-bottom: 12px;">Replaced the blunt read/write with individual CRUD letters
+                            <strong>c · r · u · d · s</strong>. Each operation can now be granted independently — an app
+                            can search without being able to delete. Adds optional fine-grained query filters and
+                            system-level scopes.
+                        </p>
+                        <div class="code-block" style="margin: 0;">
+                            <div class="code-header">v2 Scope Examples</div>
+                            <pre><code class="language-text">patient/Observation.rs      → read + search, no write
+patient/Condition.cru       → create, read, update only
+system/*.rs                 → bulk read, server-wide</code></pre>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="feature-grid" style="margin-top: 24px;">
-                    <div class="feature-card">
-                        <h3 style="color: var(--color-danger);"><i data-feather="target"></i> Context</h3>
-                        <p>Defines the bounding box of the data. <code>patient</code> means data belonging to a single
-                            specific patient. <code>user</code> means data the currently logged-in clinician can see.
-                            <code>system</code> means unrestricted bulk access.
-                        </p>
-                    </div>
-                    <div class="feature-card">
-                        <h3 style="color: var(--color-secondary);"><i data-feather="database"></i> Resource</h3>
-                        <p>The exact FHIR Resource Type (e.g., <code>Observation</code>, <code>Encounter</code>,
-                            <code>Condition</code>). You can also use <code>*</code> to request all resources.
-                        </p>
-                    </div>
-                    <div class="feature-card">
-                        <h3 style="color: var(--color-primary);"><i data-feather="edit-2"></i> Action</h3>
-                        <p>The CRUD operation allowed. Standard actions are <code>c</code> (create), <code>r</code>
-                            (read), <code>u</code> (update), <code>d</code> (delete), or <code>s</code> (search).</p>
+                <div class="callout tip" style="margin-bottom: 32px;">
+                    <i data-feather="arrow-right-circle" class="callout-icon"></i>
+                    <div class="callout-content">
+                        <strong>EHR backward compatibility:</strong> Servers advertising the <code>permission-v1</code>
+                        capability automatically map legacy scopes — <code>.read</code> → <code>.rs</code>,
+                        <code>.write</code> → <code>.cud</code>, <code>.*</code> → <code>.cruds</code>. All examples
+                        from here on use <strong>v2 syntax</strong>.
                     </div>
                 </div>
 
                 <div class="ref-divider"></div>
 
-                <h3>2. Clinical Scope Translators</h3>
-                <p>Translating clinical needs into scopes requires understanding exactly which FHIR resource holds what
-                    data. Here is a cheat sheet of common requirements for apps:</p>
+                <h3>2. The v2 Scope Formula</h3>
+                <p>SMART v2 scopes are machine-parseable strings built from three parts. Think of them as answering
+                    three questions in sequence: <strong>Who owns it?</strong> → <strong>What resource?</strong> →
+                    <strong>What can I do?</strong>
+                </p>
 
-                <table class="ref-table" style="margin-top: 16px;">
+                <div class="code-block">
+                    <div class="code-header">SMART v2 Scope Syntax</div>
+                    <pre><code class="language-text">[context] / [ResourceType | *] . [c][r][u][d][s]  [? param=value ]
+   ↑               ↑                     ↑                    ↑
+patient|user    Observation           in-order             optional
+ system           Condition           subset of           fine-grained
+                    *                 "cruds"              filter</code></pre>
+                </div>
+
+                <div class="feature-grid" style="margin-top: 8px;">
+                    <div class="feature-card" style="text-align: left;">
+                        <h3 style="color: var(--color-danger); margin-top:0;"><i data-feather="target"></i> Context</h3>
+                        <p style="margin-bottom: 8px;">The principal — who's data boundary applies?</p>
+                        <ul class="benefits-list" style="padding: 0; margin: 0;">
+                            <li style="display:block; padding: 8px 12px;"><code>patient</code> — one specific patient's
+                                chart</li>
+                            <li style="display:block; padding: 8px 12px;"><code>user</code> — all records the logged-in
+                                user can access</li>
+                            <li style="display:block; padding: 8px 12px;"><code>system</code> — server-to-server, no
+                                human involved</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card" style="text-align: left;">
+                        <h3 style="color: var(--color-secondary); margin-top:0;"><i data-feather="database"></i>
+                            Resource Type</h3>
+                        <p style="margin-bottom: 8px;">The FHIR resource or a wildcard.</p>
+                        <ul class="benefits-list" style="padding: 0; margin: 0;">
+                            <li style="display:block; padding: 8px 12px;"><code>Observation</code>,
+                                <code>Condition</code>, <code>MedicationRequest</code>…
+                            </li>
+                            <li style="display:block; padding: 8px 12px;"><code>*</code> — all resource types (use
+                                sparingly)</li>
+                            <li style="display:block; padding: 8px 12px;">EHR may grant a narrower scope than
+                                requested.</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card" style="text-align: left;">
+                        <h3 style="color: var(--color-primary); margin-top:0;"><i data-feather="edit-2"></i> CRUD
+                            Actions</h3>
+                        <p style="margin-bottom: 8px;">Letters <strong>must appear in order</strong>: c · r · u · d · s
+                        </p>
+                        <ul class="benefits-list" style="padding: 0; margin: 0;">
+                            <li style="display:block; padding: 8px 12px;"><code>c</code> create &nbsp; <code>r</code>
+                                read &nbsp; <code>u</code> update</li>
+                            <li style="display:block; padding: 8px 12px;"><code>d</code> delete &nbsp; <code>s</code>
+                                search</li>
+                            <li style="display:block; padding: 8px 12px;">✅ <code>.rs</code> &nbsp; ✅
+                                <code>.cruds</code> &nbsp; ❌ <code>.sr</code>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="ref-divider"></div>
+
+                <!-- PATIENT NAMESPACE -->
+                <h3>3. <code>patient/</code> — Patient-Level Scopes</h3>
+                <p>Restricts access to a <strong>single patient's data</strong>. The patient is established either by
+                    the EHR Launch context (Embed Launch) or by requesting <code>launch/patient</code> in Standalone
+                    Launch. This is the most common context for clinical and patient-facing apps.</p>
+
+                <div class="callout tip" style="margin-bottom: 24px;">
+                    <i data-feather="info" class="callout-icon"></i>
+                    <div class="callout-content">
+                        If an app requests <code>patient/*.rs</code> and the EHR grants it, the EHR
+                        <strong>must</strong> establish a patient in context. An EHR may refuse
+                        <code>patient/</code> scopes if no valid launch or <code>launch/patient</code> context exists.
+                    </div>
+                </div>
+
+                <table class="ref-table">
                     <thead>
                         <tr>
-                            <th>Requested Clinical Data</th>
-                            <th>Required FHIR Resource(s)</th>
-                            <th>Example Scope Request</th>
+                            <th>Scope</th>
+                            <th>What it Unlocks</th>
+                            <th>Typical Use Case</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>Patient Demographics</strong></td>
-                            <td><code>Patient</code></td>
-                            <td><code
-                                    style="background-color: transparent; border: none; padding: 0; color: var(--color-danger);">patient/Patient.rs</code>
-                            </td>
+                            <td><code>patient/Patient.rs</code></td>
+                            <td>Read & search the patient's demographic record</td>
+                            <td>Any app that displays who the patient is</td>
                         </tr>
                         <tr>
-                            <td><strong>Vitals, Labs, Smoking Status</strong></td>
-                            <td><code>Observation</code></td>
-                            <td><code
-                                    style="background-color: transparent; border: none; padding: 0; color: var(--color-secondary);">patient/Observation.rs</code>
-                            </td>
+                            <td><code>patient/Observation.rs</code></td>
+                            <td>Read labs, vitals, smoking status, BMI</td>
+                            <td>Clinical dashboard, diet & activity tracker</td>
                         </tr>
                         <tr>
-                            <td><strong>Allergies & Intolerances</strong></td>
-                            <td><code>AllergyIntolerance</code></td>
-                            <td><code
-                                    style="background-color: transparent; border: none; padding: 0; color: var(--color-primary);">patient/AllergyIntolerance.rs</code>
-                            </td>
+                            <td><code>patient/Condition.rs</code></td>
+                            <td>Read problem list and diagnoses</td>
+                            <td>Care plan, chronic disease management</td>
                         </tr>
                         <tr>
-                            <td><strong>Medications & Prescriptions</strong></td>
-                            <td><code>MedicationRequest</code>, <code>MedicationStatement</code></td>
-                            <td><code
-                                    style="background-color: transparent; border: none; padding: 0; color: var(--color-danger);">patient/MedicationRequest.rs</code>
-                            </td>
+                            <td><code>patient/MedicationRequest.rs</code></td>
+                            <td>Read active and historical prescriptions</td>
+                            <td>Medication reconciliation, pharmacy integration</td>
                         </tr>
                         <tr>
-                            <td><strong>Write Notes to Chart</strong></td>
-                            <td><code>DocumentReference</code></td>
-                            <td><code
-                                    style="background-color: transparent; border: none; padding: 0; color: var(--color-secondary);">patient/DocumentReference.c</code>
-                            </td>
+                            <td><code>patient/AllergyIntolerance.rs</code></td>
+                            <td>Read allergy and intolerance list</td>
+                            <td>Clinical safety checks, pharmacy apps</td>
+                        </tr>
+                        <tr>
+                            <td><code>patient/Encounter.rs</code></td>
+                            <td>Read past and present visits/encounters</td>
+                            <td>Visit history, care coordination</td>
+                        </tr>
+                        <tr>
+                            <td><code>patient/DocumentReference.c</code></td>
+                            <td>Write clinical notes back to the chart</td>
+                            <td>AI-assisted clinical documentation</td>
+                        </tr>
+                        <tr>
+                            <td><code>patient/QuestionnaireResponse.cru</code></td>
+                            <td>Create, read, and update form responses</td>
+                            <td>Patient intake forms, screening tools</td>
+                        </tr>
+                        <tr>
+                            <td><code>patient/*.rs</code></td>
+                            <td>Read-only access to all resource types for this patient</td>
+                            <td>Comprehensive patient summary, care gap analysis</td>
                         </tr>
                     </tbody>
                 </table>
 
                 <div class="ref-divider"></div>
 
-                <h3>3. Essential Non-Clinical Scopes</h3>
-                <p>Beyond clinical data, your app must request foundational scopes to make the launch work successfully.
+                <!-- USER NAMESPACE -->
+                <h3>4. <code>user/</code> — User-Level Scopes</h3>
+                <p>Grants access to <strong>all data the currently logged-in clinician is permitted to see</strong>,
+                    spanning multiple patients. The data boundary is the user's system permissions, not a single chart.
+                    If a clinician is only authorized to see their own patients, the scope is still enforced by the
+                    EHR's
+                    underlying RBAC — SMART scopes cannot exceed those permissions.</p>
+
+                <table class="ref-table">
+                    <thead>
+                        <tr>
+                            <th>Scope</th>
+                            <th>What it Unlocks</th>
+                            <th>Typical Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>user/Patient.rs</code></td>
+                            <td>Search and read patients the user is authorized to access</td>
+                            <td>Patient list views, patient selection UI</td>
+                        </tr>
+                        <tr>
+                            <td><code>user/Appointment.cruds</code></td>
+                            <td>Full CRUD over appointments in the user's schedule</td>
+                            <td>Scheduling apps, calendar integration</td>
+                        </tr>
+                        <tr>
+                            <td><code>user/Observation.rs</code></td>
+                            <td>Read observations across all of the user's patients</td>
+                            <td>Population health monitoring dashboards</td>
+                        </tr>
+                        <tr>
+                            <td><code>user/Condition.rs</code></td>
+                            <td>Read diagnoses across all accessible patients</td>
+                            <td>Panel management, care gap identification</td>
+                        </tr>
+                        <tr>
+                            <td><code>user/Practitioner.rs</code></td>
+                            <td>Read provider directory information</td>
+                            <td>Care team lookup, referral coordination</td>
+                        </tr>
+                        <tr>
+                            <td><code>user/*.rs</code></td>
+                            <td>Read all resources the user can access across their panel</td>
+                            <td>Broad clinical decision support, audit tools</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="ref-divider"></div>
+
+                <!-- SYSTEM NAMESPACE -->
+                <h3>5. <code>system/</code> — System-Level Scopes</h3>
+                <p>Used exclusively in <strong>Backend (machine-to-machine) flows</strong> with no human user involved.
+                    The client application itself is the principal. These require explicit trust established during app
+                    registration — the EHR's administrator must approve system-level access. Never use
+                    <code>system/</code> scopes in user-facing apps.
                 </p>
-                <ul class="benefits-list">
-                    <li style="display: block; text-align: left; margin-bottom: 8px;"><strong><code
-                                style="background: none; border: none; padding: 0;">openid</code> & <code
-                                style="background: none; border: none; padding: 0;">fhirUser</code>:</strong> Critical
-                        for enabling the OpenID Connect flow. Instructs the server to return an ID token with the user's
-                        demographic reference.</li>
-                    <li style="display: block; text-align: left; margin-bottom: 8px;"><strong><code
-                                style="background: none; border: none; padding: 0;">offline_access</code>:</strong>
-                        Requests a Refresh Token. Without this, your app will lose access the moment the initial access
-                        token expires (usually after 15-60 minutes).</li>
-                    <li style="display: block; text-align: left; margin-bottom: 8px;"><strong><code
-                                style="background: none; border: none; padding: 0;">launch/patient</code>:</strong>
-                        Instructs the EHR to trigger a "Patient Selector" UI during login so the provider can choose
-                        which patient chart they want the app to open.</li>
-                </ul>
+
+                <table class="ref-table">
+                    <thead>
+                        <tr>
+                            <th>Scope</th>
+                            <th>What it Unlocks</th>
+                            <th>Typical Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>system/Patient.rs</code></td>
+                            <td>Read all patient records on the server</td>
+                            <td>Patient index sync, deduplication pipelines</td>
+                        </tr>
+                        <tr>
+                            <td><code>system/Observation.rs</code></td>
+                            <td>Read all observations across the entire EHR</td>
+                            <td>Quality measure calculation, BI export</td>
+                        </tr>
+                        <tr>
+                            <td><code>system/Appointment.rs</code></td>
+                            <td>Read all appointments facility-wide</td>
+                            <td>Scheduling analytics, no-show prediction</td>
+                        </tr>
+                        <tr>
+                            <td><code>system/*.rs</code></td>
+                            <td>Read-only bulk access to all resources</td>
+                            <td>FHIR Bulk Data ($export) for analytics or data warehouses</td>
+                        </tr>
+                        <tr>
+                            <td><code>system/*.cruds</code></td>
+                            <td>Full read/write access system-wide</td>
+                            <td>EHR migration tools, master data management (high risk)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="ref-divider"></div>
+
+                <!-- LAUNCH CONTEXT SCOPES -->
+                <h3>6. Launch Context Scopes</h3>
+                <p>These scopes don't control resource access — they control <strong>what contextual information the EHR
+                        attaches to the token response</strong>. Without them, your app won't know which patient or
+                    encounter is active.</p>
+
+                <div class="feature-grid">
+                    <div class="feature-card" style="text-align: left;">
+                        <h3 style="margin-top: 0; color: var(--color-secondary);"><i data-feather="zap"></i>
+                            <code>launch</code>
+                        </h3>
+                        <p>Used in <strong>Embed (EHR) Launch</strong> only. Tells the auth server to associate the
+                            authorization request with the current EHR session. Your app passes back the
+                            <code>launch=abc123</code> token the EHR injected into your URL. The EHR then automatically
+                            attaches the active patient and encounter to your token response.
+                        </p>
+                    </div>
+                    <div class="feature-card" style="text-align: left;">
+                        <h3 style="margin-top: 0; color: var(--color-primary);"><i data-feather="user"></i>
+                            <code>launch/patient</code>
+                        </h3>
+                        <p>Used in <strong>Standalone Launch</strong>. Tells the EHR: <em>"I need a patient in context —
+                                show a patient selector UI during login."</em> After the user picks a patient, the EHR
+                            returns a <code>patient</code> ID in the token response. Without this scope,
+                            <code>patient/</code> resource scopes have no patient to apply to.
+                        </p>
+                    </div>
+                    <div class="feature-card" style="text-align: left;">
+                        <h3 style="margin-top: 0; color: var(--color-danger);"><i data-feather="clipboard"></i>
+                            <code>launch/encounter</code>
+                        </h3>
+                        <p>Requests that an <strong>encounter be established</strong> in context (with an encounter
+                            selector if needed). The token response will include an <code>encounter</code> ID. Use this
+                            when your app needs to know the specific visit — not just the patient — for
+                            documentation or billing workflows.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="code-block" style="margin-top: 8px;">
+                    <div class="code-header">Token Response — Launch Context Fields</div>
+                    <pre><code class="language-json">{
+  "access_token": "eyJhbGci...",
+  "token_type":   "Bearer",
+  "expires_in":   3600,
+  "scope":        "launch/patient patient/Observation.rs openid fhirUser",
+  "patient":      "12b3c4d5",       // ← returned because launch/patient was requested
+  "encounter":    "987654321",      // ← returned because launch/encounter was requested
+  "need_patient_banner": true,      // ← UX hint: should your app show a patient header?
+  "smart_style_url": "https://..."  // ← EHR theme colors for your UI to match
+}</code></pre>
+                </div>
+
+                <div class="ref-divider"></div>
+
+                <!-- IDENTITY SCOPES -->
+                <h3>7. Identity & Session Scopes</h3>
+                <p>These are <strong>OpenID Connect</strong> scopes that unlock user identity information and session
+                    management. They are independent of clinical data access and work alongside any resource scopes.</p>
+
+                <div class="feature-grid">
+                    <div class="feature-card" style="text-align: left;">
+                        <h3 style="margin-top: 0;"><i data-feather="key"></i> <code>openid</code></h3>
+                        <p><strong>Required for OIDC.</strong> Instructs the authorization server to issue an
+                            <code>id_token</code> alongside the access token. Without this scope, you receive no ID
+                            token and cannot verify the identity of who just logged in. Always pair with
+                            <code>fhirUser</code>.
+                        </p>
+                    </div>
+                    <div class="feature-card" style="text-align: left;">
+                        <h3 style="margin-top: 0;"><i data-feather="user-check"></i> <code>fhirUser</code></h3>
+                        <p><strong>SMART-specific OIDC extension.</strong> Adds the <code>fhirUser</code> claim to the
+                            ID token — an absolute FHIR URL pointing to the logged-in user's FHIR resource (e.g.,
+                            <code>Practitioner/12345</code> or <code>Patient/789</code>). Fetch that URL to get their
+                            full demographics. This is what your app uses to display "Logged in as Dr. Smith."
+                        </p>
+                    </div>
+                    <div class="feature-card" style="text-align: left;">
+                        <h3 style="margin-top: 0;"><i data-feather="user"></i> <code>profile</code></h3>
+                        <p>Standard OIDC scope. Requests basic user profile claims in the ID token: name, given_name,
+                            family_name, locale, etc. Less useful than <code>fhirUser</code> in healthcare contexts
+                            since FHIR resources contain richer structured data.
+                        </p>
+                    </div>
+                    <div class="feature-card" style="text-align: left;">
+                        <h3 style="margin-top: 0;"><i data-feather="refresh-cw"></i> <code>offline_access</code></h3>
+                        <p><strong>Requests a Refresh Token</strong> valid indefinitely (per server policy). Use for
+                            background sync daemons or apps that need to access data after the user closes the browser.
+                            The EHR may require additional user consent for this scope.</p>
+                    </div>
+                    <div class="feature-card" style="text-align: left;">
+                        <h3 style="margin-top: 0;"><i data-feather="wifi"></i> <code>online_access</code></h3>
+                        <p><strong>Requests a Refresh Token</strong> valid only while the end-user remains online /
+                            session-active. When the user logs out of the EHR, the refresh token is automatically
+                            invalidated. Use for session-bound apps like embedded iFrames.</p>
+                    </div>
+                </div>
+
+                <div class="callout tip" style="margin-top: 8px;">
+                    <i data-feather="info" class="callout-icon"></i>
+                    <div class="callout-content">
+                        <strong>Minimal scope principle:</strong> Always request the smallest set of scopes that
+                        satisfies your use case. EHRs will grant a subset of what you request — your app must handle
+                        receiving fewer permissions gracefully. Requesting <code>patient/*.cruds</code> as a catchall
+                        is a red flag during App Orchard review.
+                    </div>
+                </div>
+
+                <div class="ref-divider"></div>
+
+                <!-- FINE-GRAINED FILTER PARAMETERS -->
+                <h3>8. Fine-Grained Scope Filters (v2)</h3>
+                <p>SMART v2 allows appending FHIR search parameters directly to a scope, creating a read access filter
+                    that is enforced at the authorization level — not just at query time.</p>
+
+                <div class="code-block">
+                    <div class="code-header">Fine-Grained Scope — Lab Results Only</div>
+                    <pre><code class="language-text">patient/Observation.rs?category=http://terminology.hl7.org/CodeSystem/observation-category|laboratory</code></pre>
+                </div>
+
+                <p>This tells the EHR: <em>"Grant read/search on Observations, but only for the laboratory
+                        category."</em> The server must enforce this filter even if the client queries without the
+                    parameter. This is a powerful tool for privacy-by-design — a mental health app could request
+                    <code>patient/Observation.rs?category=...survey</code> and be structurally prevented from ever
+                    seeing lab data.
+                </p>
 
                 <div class="page-navigation" style="margin-top: 48px;">
                     <button class="nav-btn prev" data-target="#section-4"><i data-feather="arrow-left"></i> Prev: Config
